@@ -1,0 +1,35 @@
+login, buy order, sell order
+- user > restful > server 
+- server > give number > asynq > consumer(maybe not) > mysql DB create buy order, sell order
+- DB has two table, buy table and sell table, table has owner, price, stock ID
+
+- service > thread do match job, query 前100 of sell table and buy table per 1s find match > 
+create 扣款、轉移股票的task > asynq
+
+- service > 扣款、轉移股票的task consumer(multiple) > config DB (wallet、stock、buy、sell) > notify result
+
+只會有一張order table，type 1 == buy，type 2 == sell，status 1 == new，status 2/3 == success/failed
+
+crontab > history > clear sell、buy
+
+buyer higher 
+seller lower
+
+S  B
+33   1(*):33 30:33 40:33 
+40 30
+50 20
+60 10
+
+history table
+
+
+33G 20 Seller 30 buyer 20 deal
+32G full match
+31G full match
+
+33G 0 seller 10 buyer
+
+sell table、order table
+history table
+wallet、stock table
