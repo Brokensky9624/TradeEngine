@@ -1,3 +1,3 @@
-CREATE DATABASE IF NOT EXISTS masterDB;
+CREATE DATABASE IF NOT EXISTS tradeEngineDB;
 GRANT ALL PRIVILEGES ON *.* TO 'trade_engine_admin'@'%' WITH GRANT OPTION;
-USE masterDB;
+USE tradeEngineDB;

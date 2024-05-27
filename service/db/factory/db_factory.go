@@ -1,14 +1,16 @@
-package internal
+package factory
 
 import (
 	"time"
+	"tradeengine/service/db/internal"
 	"tradeengine/service/db/model"
+	"tradeengine/service/db/types"
 	"tradeengine/utils/logger"
 	"tradeengine/utils/panichandle"
 )
 
 type DBName string
-type DBMap map[DBName]*DBService
+type DBMap map[DBName]*types.DBService
 
 type IDBFactory interface {
 	GetRequiredDBServiceMap() DBMap
@@ -55,8 +57,8 @@ func (f *DefaulDBFactory) loadRequiredDBServiceMap() {
 	// FIXME: change to load information from env and files
 	username := "trade_engine_admin"
 	password := "trade_engine_is_666"
-	var dbName DBName = "masterDB"
-	connConfig := NewMySQLConnConfig("", "", username, password, string(dbName))
+	var dbName DBName = "tradeEngineDB"
+	connConfig := internal.NewMySQLConnConfig("", "", username, password, string(dbName))
 	connConfig.
 		SetCharset("utf8mb4").
 		SetParseTime("True").
@@ -64,9 +66,9 @@ func (f *DefaulDBFactory) loadRequiredDBServiceMap() {
 		SetTimeout("20s").
 		SetReadTimeout("60s").
 		SetWriteTimeout("60s")
-	builder := NewMySQLDBBuilder(connConfig)
+	builder := internal.NewMySQLDBBuilder(connConfig)
 	modelList := []interface{}{model.Member{}}
-	dbServ := NewDBService(builder, modelList)
+	dbServ := types.NewDBService(builder, modelList)
 	dbServ.SetMaxIdleConns(20)
 	dbServ.SetMaxOpenConns(200)
 	dbServ.SetConnMaxLifetime(time.Hour)

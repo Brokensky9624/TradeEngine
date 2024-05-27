@@ -8,7 +8,10 @@ import (
 	"sync"
 	"time"
 	"tradeengine/server/web/auth"
+	authFactory "tradeengine/server/web/auth/factory"
+	authInterfaces "tradeengine/server/web/auth/interfaces"
 	"tradeengine/server/web/rest/member"
+	"tradeengine/service/interfaces"
 	"tradeengine/utils/logger"
 	"tradeengine/utils/panichandle"
 
@@ -31,8 +34,10 @@ type WebServer struct {
 	cMux        cmux.CMux
 	httpServer  http.Server
 	httpsServer http.Server
-	jwtAuth     auth.IJWTAuth
+	jwtAuth     authInterfaces.IJWTAuth
 	mainGroup   *gin.RouterGroup
+	ctx         context.Context
+	srvMngr     interfaces.IServiceManager
 }
 
 var (
@@ -40,18 +45,16 @@ var (
 	once      sync.Once
 )
 
-func NewWebServer(ctx context.Context) *WebServer {
+func NewWebServer(ctx context.Context, srvMngr interfaces.IServiceManager) *WebServer {
 	once.Do(func() {
 		logger.SERVER.Info("web server initializing")
-		webServer = createWebServer()
+		webServer = &WebServer{
+			Engine:  gin.Default(),
+			ctx:     ctx,
+			srvMngr: srvMngr,
+		}
 	})
 	return webServer
-}
-
-func createWebServer() *WebServer {
-	return &WebServer{
-		Engine: gin.Default(),
-	}
 }
 
 func (w *WebServer) Prepare() {
@@ -63,7 +66,10 @@ func (w *WebServer) Prepare() {
 }
 
 func (w *WebServer) loadJWT() {
-	w.jwtAuth = auth.GetJWTAuthFactory().GetJWTAuth()
+	factory := authFactory.GetJWTAuthFactory()
+	factory.SetSrvMngr(w.srvMngr)
+	factory.InitJWTAuth()
+	w.jwtAuth = factory.GetJWTAuth()
 }
 
 func (w *WebServer) loadMainGroup() {
@@ -81,7 +87,7 @@ func (w *WebServer) loadMiddleWare() {
 }
 
 func (w *WebServer) registerRoute() {
-	member.NewREST(w.mainGroup).RegisterRoute()
+	member.NewREST(w.mainGroup, w.srvMngr).RegisterRoute()
 }
 
 // support auto restart version
@@ -174,6 +180,6 @@ func getHTTPServer(router *gin.Engine) *http.Server {
 
 func getHTTPsServer(router *gin.Engine) *http.Server {
 	server := getHTTPServer(router)
-	server.TLSConfig = getTLSConfig()
+	server.TLSConfig, _ = auth.GetTLSConfig()
 	return server
 }

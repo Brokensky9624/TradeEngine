@@ -1,22 +1,23 @@
-package internal
+package types
 
 import (
 	"database/sql"
 	"time"
+	"tradeengine/service/db/internal"
 
 	"gorm.io/gorm"
 )
 
 type DBService struct {
 	*gorm.DB
-	dbBuilder       IDBBuilder
+	dbBuilder       internal.IDBBuilder
 	MaxIdleConns    int
 	MaxOpenConns    int
 	ConnMaxLifetime time.Duration
 	modelList       []interface{}
 }
 
-func NewDBService(dbBuilder IDBBuilder, modelList []interface{}) *DBService {
+func NewDBService(dbBuilder internal.IDBBuilder, modelList []interface{}) *DBService {
 	return &DBService{
 		dbBuilder: dbBuilder,
 		modelList: modelList,

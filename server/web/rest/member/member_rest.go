@@ -3,7 +3,10 @@ package member
 import (
 	"fmt"
 	"net/http"
-	"tradeengine/server/web/rest/shared"
+	"tradeengine/server/web/rest/param"
+	"tradeengine/server/web/rest/resp"
+	"tradeengine/service/interfaces"
+	"tradeengine/service/member/types"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,11 +14,13 @@ import (
 type MemberREST struct {
 	mainGroup    *gin.RouterGroup
 	currentGroup *gin.RouterGroup
+	memberSrv    types.IMemberSrv
 }
 
-func NewREST(mainGroup *gin.RouterGroup) *MemberREST {
+func NewREST(mainGroup *gin.RouterGroup, srvMngr interfaces.IServiceManager) *MemberREST {
 	rest := &MemberREST{
 		mainGroup: mainGroup,
+		memberSrv: srvMngr.MemberService(),
 	}
 	rest.currentGroup = rest.mainGroup.Group("/member")
 	return rest
@@ -29,8 +34,7 @@ func (r *MemberREST) RegisterRoute() {
 }
 
 func (r *MemberREST) Edit(c *gin.Context) {
-	memberSrv := r.SrvManager.MemberService()
-	var user shared.MemberEditParam
+	var user param.MemberEditParam
 	if err := c.ShouldBind(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -38,34 +42,32 @@ func (r *MemberREST) Edit(c *gin.Context) {
 		return
 	}
 	// edit member
-	if err := memberSrv.Edit(user); err != nil {
-		c.JSON(http.StatusOK, shared.FailRespObj(err))
+	if err := r.memberSrv.Edit(user); err != nil {
+		c.JSON(http.StatusOK, resp.FailRespObj(err))
 		return
 	}
 	message := fmt.Sprintf("Edit member %s successful !", user.Account)
-	c.JSON(http.StatusOK, shared.SuccessRespObj(message, nil))
+	c.JSON(http.StatusOK, resp.SuccessRespObj(message, nil))
 }
 
 func (r *MemberREST) Delete(c *gin.Context) {
-	memberSrv := r.SrvManager.MemberService()
 	account := c.Param("account")
 	// delete member
-	if err := memberSrv.Delete(shared.MemberDeleteParam{
+	if err := r.memberSrv.Delete(param.MemberDeleteParam{
 		Account: account,
 	}); err != nil {
-		c.JSON(http.StatusOK, shared.FailRespObj(err))
+		c.JSON(http.StatusOK, resp.FailRespObj(err))
 		return
 	}
 	message := fmt.Sprintf("Delete member %s successful !", account)
-	c.JSON(http.StatusOK, shared.SuccessRespObj(message, nil))
+	c.JSON(http.StatusOK, resp.SuccessRespObj(message, nil))
 }
 
 func (r *MemberREST) Members(c *gin.Context) {
-	memberSrv := r.SrvManager.MemberService()
 	// get member list
-	memberList, err := memberSrv.Members()
+	memberList, err := r.memberSrv.Members()
 	if err != nil {
-		c.JSON(http.StatusOK, shared.FailRespObj(err))
+		c.JSON(http.StatusOK, resp.FailRespObj(err))
 		return
 	}
 	memberListLen := len(memberList)
@@ -73,19 +75,18 @@ func (r *MemberREST) Members(c *gin.Context) {
 	for i, member := range memberList {
 		dataList[i] = member
 	}
-	c.JSON(http.StatusOK, shared.SuccessRespObj("", dataList...))
+	c.JSON(http.StatusOK, resp.SuccessRespObj("", dataList...))
 }
 
 func (r *MemberREST) Member(c *gin.Context) {
-	memberSrv := r.SrvManager.MemberService()
 	account := c.Param("account")
 	// query member
-	member, err := memberSrv.Member(shared.MemberInfoParam{
+	member, err := r.memberSrv.Member(param.MemberInfoParam{
 		Account: account,
 	})
 	if err != nil {
-		c.JSON(http.StatusOK, shared.FailRespObj(err))
+		c.JSON(http.StatusOK, resp.FailRespObj(err))
 		return
 	}
-	c.JSON(http.StatusOK, shared.SuccessRespObj("", member))
+	c.JSON(http.StatusOK, resp.SuccessRespObj("", member))
 }

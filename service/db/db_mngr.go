@@ -3,11 +3,12 @@ package db
 import (
 	"context"
 	"sync"
-	"tradeengine/service/db/internal"
+	"tradeengine/service/db/factory"
+	"tradeengine/service/db/types"
 	"tradeengine/utils/logger"
 )
 
-const defaultDB = "masterDB"
+const defaultDB = "tradeEngineDB"
 
 var (
 	DBMngr *DBManager
@@ -16,9 +17,9 @@ var (
 
 type DBManager struct {
 	ctx                  context.Context
-	factory              internal.IDBFactory
-	requiredDBServiceMap internal.DBMap
-	optionalDBServiceMap internal.DBMap
+	factory              factory.IDBFactory
+	requiredDBServiceMap factory.DBMap
+	optionalDBServiceMap factory.DBMap
 }
 
 func NewDBManager(ctx context.Context) *DBManager {
@@ -33,7 +34,7 @@ func NewDBManager(ctx context.Context) *DBManager {
 
 func (mngr *DBManager) initialize() {
 	logger.DB.Info("Initializing DBManager")
-	mngr.factory = internal.GetDBFactory()
+	mngr.factory = factory.GetDBFactory()
 	mngr.loadDBServiceMap()
 	logger.DB.Info("DBManager is ready")
 
@@ -44,12 +45,12 @@ func (mngr *DBManager) loadDBServiceMap() {
 	mngr.optionalDBServiceMap = mngr.factory.GetOptionalDBServiceMap()
 }
 
-func (mngr *DBManager) DefaultDBService() *internal.DBService {
+func (mngr *DBManager) DefaultDBService() *types.DBService {
 	return mngr.DBService(defaultDB)
 }
 
-func (mngr *DBManager) DBService(dbName string) *internal.DBService {
-	formatedDBName := internal.DBName(dbName)
+func (mngr *DBManager) DBService(dbName string) *types.DBService {
+	formatedDBName := factory.DBName(dbName)
 	if v, ok := mngr.requiredDBServiceMap[formatedDBName]; ok {
 		return v
 	} else if v, ok := mngr.optionalDBServiceMap[formatedDBName]; ok {

@@ -7,8 +7,9 @@ import (
 	"syscall"
 	"time"
 	"tradeengine/server/web"
-	"tradeengine/server/web/rest/member"
 	"tradeengine/service/db"
+	serviceManager "tradeengine/service/manager"
+	"tradeengine/service/member"
 	"tradeengine/utils/logger"
 )
 
@@ -27,13 +28,15 @@ func main() {
 	dbMngr := db.NewDBManager(rootContext)
 	dbMngr.Run()
 
-	// init web server handling restful
-	webSrv := web.NewWebServer(rootContext)
-	webSrv.Prepare()
-	webSrv.Run()
-
 	// init service
-	member.NewService()
+	srvMngr := serviceManager.NewManager()
+	memberSrv := member.NewService(dbMngr.DefaultDBService())
+	srvMngr.SetMemberService(memberSrv)
+
+	// init web server handling restful
+	webService := web.NewWebServer(rootContext, srvMngr)
+	webService.Prepare()
+	webService.Run()
 
 	// Set up signal handling to capture SIGINT and SIGTERM signals
 	sigCh := make(chan os.Signal, 1)

@@ -3,10 +3,12 @@ module tradeengine
 go 1.21.3
 
 require (
+	github.com/appleboy/gin-jwt/v2 v2.9.2
 	github.com/gin-gonic/gin v1.10.0
 	github.com/magiconair/properties v1.8.7
 	github.com/soheilhy/cmux v0.1.5
 	go.uber.org/zap v1.27.0
+	golang.org/x/crypto v0.23.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gorm.io/driver/mysql v1.5.6
 	gorm.io/gorm v1.25.10
@@ -24,6 +26,7 @@ require (
 	github.com/go-playground/validator/v10 v10.20.0 // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
@@ -37,7 +40,6 @@ require (
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/arch v0.8.0 // indirect
-	golang.org/x/crypto v0.23.0 // indirect
 	golang.org/x/net v0.25.0 // indirect
 	golang.org/x/sys v0.20.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
