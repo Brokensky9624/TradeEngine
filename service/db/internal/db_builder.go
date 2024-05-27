@@ -13,52 +13,52 @@ type IDBBuilder interface {
 	Build() (*gorm.DB, error)
 }
 
-type MySQLBuilder struct {
+type MySQLDBBuilder struct {
 	connConfig   *mySQLConnConfig
 	driverConfig *mysql.Config
 	gormConfig   *gorm.Config
 }
 
-func NewMySQLBuilder(connConfig *mySQLConnConfig) *MySQLBuilder {
-	return &MySQLBuilder{
+func NewMySQLDBBuilder(connConfig *mySQLConnConfig) *MySQLDBBuilder {
+	return &MySQLDBBuilder{
 		connConfig: connConfig,
 	}
 }
 
-func (b *MySQLBuilder) SetDriverConfig(config *mysql.Config) {
+func (b *MySQLDBBuilder) SetDriverConfig(config *mysql.Config) {
 	b.driverConfig = config
 }
 
-func (b *MySQLBuilder) getDriverConfig() *mysql.Config {
+func (b *MySQLDBBuilder) getDriverConfig() *mysql.Config {
 	if b.driverConfig == nil {
 		b.driverConfig = b.getDefaultDriverConfig()
 	}
 	return b.driverConfig
 }
 
-func (b *MySQLBuilder) getDefaultDriverConfig() *mysql.Config {
+func (b *MySQLDBBuilder) getDefaultDriverConfig() *mysql.Config {
 	return &mysql.Config{
 		DSN: b.getDSN(),
 	}
 }
 
-func (b *MySQLBuilder) getDSN() string {
+func (b *MySQLDBBuilder) getDSN() string {
 	return b.connConfig.getDSN()
 }
 
-func (b *MySQLBuilder) SetGormConfig(config *gorm.Config) IDBBuilder {
+func (b *MySQLDBBuilder) SetGormConfig(config *gorm.Config) IDBBuilder {
 	b.gormConfig = config
 	return b
 }
 
-func (b *MySQLBuilder) getGormConfig() *gorm.Config {
+func (b *MySQLDBBuilder) getGormConfig() *gorm.Config {
 	if b.gormConfig == nil {
 		b.gormConfig = b.getDefaultGormConfig()
 	}
 	return b.gormConfig
 }
 
-func (b *MySQLBuilder) getDefaultGormConfig() *gorm.Config {
+func (b *MySQLDBBuilder) getDefaultGormConfig() *gorm.Config {
 	return &gorm.Config{
 		NowFunc: func() time.Time {
 			return time.Now().UTC()
@@ -66,28 +66,19 @@ func (b *MySQLBuilder) getDefaultGormConfig() *gorm.Config {
 	}
 }
 
-func (b *MySQLBuilder) getDialector() gorm.Dialector {
+func (b *MySQLDBBuilder) getDialector() gorm.Dialector {
 	return mysql.New(*b.getDriverConfig())
 }
 
-func (b *MySQLBuilder) Build() (*gorm.DB, error) {
+func (b *MySQLDBBuilder) Build() (*gorm.DB, error) {
 	db, err := gorm.Open(b.getDialector(), b.getGormConfig())
 	if err != nil {
 		return nil, err
 	}
 	_, err = db.DB()
 	if err != nil {
-		logger.DB.Warn("failed to build MySQLBuilder, err: %s", err)
+		logger.DB.Error("failed to build MySQLDBBuilder, err: %s", err)
 		return nil, err
 	}
-
-	// sqlDB, err := db.DB()
-	// if err != nil {
-	// 	logger.DB.Warn("failed to build MySQLBuilder, err: %s", err)
-	// 	return nil, err
-	// }
-	// sqlDB.SetMaxIdleConns(b.connConfig.MaxIdleConns)
-	// sqlDB.SetMaxOpenConns(b.connConfig.MaxOpenConns)
-	// sqlDB.SetConnMaxLifetime(b.connConfig.ConnMaxLifetime)
 	return db, nil
 }

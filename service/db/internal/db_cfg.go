@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
-	"time"
 )
 
 type baseConnConfig struct {
@@ -19,18 +18,21 @@ var tagNameForDsn = "dsnTag"
 
 type mySQLConnConfig struct {
 	baseConnConfig
-	Charset         string `dsnTag:"charset"`
-	ParseTime       string `dsnTag:"parseTime"`
-	Loc             string `dsnTag:"loc"`
-	Timeout         string `dsnTag:"timeout"`
-	ReadTimeout     string `dsnTag:"readTimeout"`
-	WriteTimeout    string `dsnTag:"writeTimeout"`
-	MaxIdleConns    int
-	MaxOpenConns    int
-	ConnMaxLifetime time.Duration
+	Charset      string `dsnTag:"charset"`
+	ParseTime    string `dsnTag:"parseTime"`
+	Loc          string `dsnTag:"loc"`
+	Timeout      string `dsnTag:"timeout"`
+	ReadTimeout  string `dsnTag:"readTimeout"`
+	WriteTimeout string `dsnTag:"writeTimeout"`
 }
 
 func NewMySQLConnConfig(ip, port, username, password, databaseName string) *mySQLConnConfig {
+	if ip == "" {
+		ip = "127.0.0.1"
+	}
+	if port == "" {
+		port = "3306"
+	}
 	return &mySQLConnConfig{
 		baseConnConfig: baseConnConfig{
 			ip:           ip,
@@ -70,19 +72,6 @@ func (config *mySQLConnConfig) SetReadTimeout(readTimeout string) *mySQLConnConf
 
 func (config *mySQLConnConfig) SetWriteTimeout(writeTimeout string) *mySQLConnConfig {
 	config.WriteTimeout = writeTimeout
-	return config
-}
-
-func (config *mySQLConnConfig) SetMaxIdleConns(maxIdleConns int) *mySQLConnConfig {
-	config.MaxIdleConns = maxIdleConns
-	return config
-}
-func (config *mySQLConnConfig) SetMaxOpenConns(maxOpenConns int) *mySQLConnConfig {
-	config.MaxOpenConns = maxOpenConns
-	return config
-}
-func (config *mySQLConnConfig) SetConnMaxLifetime(connMaxLifetime time.Duration) *mySQLConnConfig {
-	config.ConnMaxLifetime = connMaxLifetime
 	return config
 }
 

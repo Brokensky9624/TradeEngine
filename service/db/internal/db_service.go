@@ -1,27 +1,75 @@
 package internal
 
-import "gorm.io/gorm"
+import (
+	"database/sql"
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type DBService struct {
 	*gorm.DB
+	dbBuilder       IDBBuilder
+	MaxIdleConns    int
+	MaxOpenConns    int
+	ConnMaxLifetime time.Duration
+	modelList       []interface{}
 }
 
-func NewDBService(db *gorm.DB) *DBService {
+func NewDBService(dbBuilder IDBBuilder, modelList []interface{}) *DBService {
 	return &DBService{
-		DB: db,
+		dbBuilder: dbBuilder,
+		modelList: modelList,
 	}
 }
 
-func (d *DBService) InitTable() error {
-	return d.AutoMigrate(
-	// &model.Member{},
-	// &model.Product{},
-	)
+func (d *DBService) SetMaxIdleConns(maxIdleConns int) *DBService {
+	d.MaxIdleConns = maxIdleConns
+	return d
+}
+
+func (d *DBService) SetMaxOpenConns(maxOpenConns int) *DBService {
+	d.MaxOpenConns = maxOpenConns
+	return d
+}
+
+func (d *DBService) SetConnMaxLifetime(connMaxLifetime time.Duration) *DBService {
+	d.ConnMaxLifetime = connMaxLifetime
+	return d
+}
+
+func (d *DBService) Initialize() error {
+	db, err := d.BuildDB()
+	if err != nil {
+		return err
+	}
+	d.DB = db
+	if err = d.Ping(); err != nil {
+		return err
+	}
+	if err = d.AutoMigrate(d.modelList...); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (d *DBService) BuildDB() (*gorm.DB, error) {
+	db, err := d.dbBuilder.Build()
+	if err != nil {
+		return nil, err
+	}
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, err
+	}
+	sqlDB.SetMaxIdleConns(d.MaxIdleConns)
+	sqlDB.SetMaxOpenConns(d.MaxOpenConns)
+	sqlDB.SetConnMaxLifetime(d.ConnMaxLifetime)
+	return db, nil
 }
 
 func (d *DBService) Ping() error {
-	// get sqlDB for close later
-	sqlDB, err := d.DB.DB()
+	sqlDB, err := d.GetSqlDB()
 	if err != nil {
 		return err
 	}
@@ -29,10 +77,17 @@ func (d *DBService) Ping() error {
 }
 
 func (d *DBService) Close() error {
-	// get sqlDB for close later
-	sqlDB, err := d.DB.DB()
+	sqlDB, err := d.GetSqlDB()
 	if err != nil {
 		return err
 	}
 	return sqlDB.Close()
+}
+
+func (d *DBService) GetSqlDB() (*sql.DB, error) {
+	sqlDB, err := d.DB.DB()
+	if err != nil {
+		return nil, err
+	}
+	return sqlDB, nil
 }

@@ -3,7 +3,6 @@ package internal
 import (
 	"reflect"
 	"testing"
-	"time"
 )
 
 func TestNewMySQLConnConfig(t *testing.T) {
@@ -19,7 +18,25 @@ func TestNewMySQLConnConfig(t *testing.T) {
 		args args
 		want *mySQLConnConfig
 	}{
-		// TODO: Add test cases.
+		{
+			name: "check correct case of TestNewMySQLConnConfig",
+			args: args{
+				"127.0.0.1",
+				"3306",
+				"initial_user",
+				"password",
+				"testDB",
+			},
+			want: &mySQLConnConfig{
+				baseConnConfig: baseConnConfig{
+					ip:           "127.0.0.1",
+					port:         "3306",
+					userName:     "initial_user",
+					password:     "password",
+					databaseName: "testDB",
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -40,7 +57,29 @@ func Test_mySQLConnConfig_SetCharset(t *testing.T) {
 		args   args
 		want   *mySQLConnConfig
 	}{
-		// TODO: Add test cases.
+		{
+			name: "check correct case of Test_mySQLConnConfig_SetCharset",
+			config: NewMySQLConnConfig(
+				"127.0.0.1",
+				"3306",
+				"initial_user",
+				"password",
+				"testDB",
+			),
+			args: args{
+				charset: "utf8mb4",
+			},
+			want: &mySQLConnConfig{
+				baseConnConfig: baseConnConfig{
+					ip:           "127.0.0.1",
+					port:         "3306",
+					userName:     "initial_user",
+					password:     "password",
+					databaseName: "testDB",
+				},
+				Charset: "utf8mb4",
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -61,7 +100,29 @@ func Test_mySQLConnConfig_SetParseTime(t *testing.T) {
 		args   args
 		want   *mySQLConnConfig
 	}{
-		// TODO: Add test cases.
+		{
+			name: "check correct case of Test_mySQLConnConfig_SetParseTime",
+			config: NewMySQLConnConfig(
+				"127.0.0.1",
+				"3306",
+				"initial_user",
+				"password",
+				"testDB",
+			),
+			args: args{
+				parseTime: "True",
+			},
+			want: &mySQLConnConfig{
+				baseConnConfig: baseConnConfig{
+					ip:           "127.0.0.1",
+					port:         "3306",
+					userName:     "initial_user",
+					password:     "password",
+					databaseName: "testDB",
+				},
+				ParseTime: "True",
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -82,7 +143,29 @@ func Test_mySQLConnConfig_SetLoc(t *testing.T) {
 		args   args
 		want   *mySQLConnConfig
 	}{
-		// TODO: Add test cases.
+		{
+			name: "check correct case of Test_mySQLConnConfig_SetLoc",
+			config: NewMySQLConnConfig(
+				"127.0.0.1",
+				"3306",
+				"initial_user",
+				"password",
+				"testDB",
+			),
+			args: args{
+				loc: "Local",
+			},
+			want: &mySQLConnConfig{
+				baseConnConfig: baseConnConfig{
+					ip:           "127.0.0.1",
+					port:         "3306",
+					userName:     "initial_user",
+					password:     "password",
+					databaseName: "testDB",
+				},
+				Loc: "Local",
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -103,7 +186,29 @@ func Test_mySQLConnConfig_SetTimeout(t *testing.T) {
 		args   args
 		want   *mySQLConnConfig
 	}{
-		// TODO: Add test cases.
+		{
+			name: "check correct case of Test_mySQLConnConfig_SetTimeout",
+			config: NewMySQLConnConfig(
+				"127.0.0.1",
+				"3306",
+				"initial_user",
+				"password",
+				"testDB",
+			),
+			args: args{
+				timeout: "30s",
+			},
+			want: &mySQLConnConfig{
+				baseConnConfig: baseConnConfig{
+					ip:           "127.0.0.1",
+					port:         "3306",
+					userName:     "initial_user",
+					password:     "password",
+					databaseName: "testDB",
+				},
+				Timeout: "30s",
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -124,7 +229,29 @@ func Test_mySQLConnConfig_SetReadTimeout(t *testing.T) {
 		args   args
 		want   *mySQLConnConfig
 	}{
-		// TODO: Add test cases.
+		{
+			name: "check correct case of Test_mySQLConnConfig_SetReadTimeout",
+			config: NewMySQLConnConfig(
+				"127.0.0.1",
+				"3306",
+				"initial_user",
+				"password",
+				"testDB",
+			),
+			args: args{
+				readTimeout: "30s",
+			},
+			want: &mySQLConnConfig{
+				baseConnConfig: baseConnConfig{
+					ip:           "127.0.0.1",
+					port:         "3306",
+					userName:     "initial_user",
+					password:     "password",
+					databaseName: "testDB",
+				},
+				ReadTimeout: "30s",
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -145,7 +272,29 @@ func Test_mySQLConnConfig_SetWriteTimeout(t *testing.T) {
 		args   args
 		want   *mySQLConnConfig
 	}{
-		// TODO: Add test cases.
+		{
+			name: "check correct case of Test_mySQLConnConfig_SetWriteTimeout",
+			config: NewMySQLConnConfig(
+				"127.0.0.1",
+				"3306",
+				"initial_user",
+				"password",
+				"testDB",
+			),
+			args: args{
+				writeTimeout: "30s",
+			},
+			want: &mySQLConnConfig{
+				baseConnConfig: baseConnConfig{
+					ip:           "127.0.0.1",
+					port:         "3306",
+					userName:     "initial_user",
+					password:     "password",
+					databaseName: "testDB",
+				},
+				WriteTimeout: "30s",
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -156,75 +305,24 @@ func Test_mySQLConnConfig_SetWriteTimeout(t *testing.T) {
 	}
 }
 
-func Test_mySQLConnConfig_SetMaxIdleConns(t *testing.T) {
-	type args struct {
-		maxIdleConns int
-	}
-	tests := []struct {
-		name   string
-		config *mySQLConnConfig
-		args   args
-		want   *mySQLConnConfig
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.config.SetMaxIdleConns(tt.args.maxIdleConns); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("mySQLConnConfig.SetMaxIdleConns() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func Test_mySQLConnConfig_SetMaxOpenConns(t *testing.T) {
-	type args struct {
-		maxOpenConns int
-	}
-	tests := []struct {
-		name   string
-		config *mySQLConnConfig
-		args   args
-		want   *mySQLConnConfig
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.config.SetMaxOpenConns(tt.args.maxOpenConns); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("mySQLConnConfig.SetMaxOpenConns() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func Test_mySQLConnConfig_SetConnMaxLifetime(t *testing.T) {
-	type args struct {
-		connMaxLifetime time.Duration
-	}
-	tests := []struct {
-		name   string
-		config *mySQLConnConfig
-		args   args
-		want   *mySQLConnConfig
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.config.SetConnMaxLifetime(tt.args.connMaxLifetime); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("mySQLConnConfig.SetConnMaxLifetime() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func Test_mySQLConnConfig_getBaseDsn(t *testing.T) {
 	tests := []struct {
 		name string
 		b    *mySQLConnConfig
 		want string
-	}{}
+	}{
+		{
+			name: "check correct case of Test_mySQLConnConfig_getBaseDsn",
+			b: NewMySQLConnConfig(
+				"127.0.0.1",
+				"3306",
+				"initial_user",
+				"password",
+				"testDB",
+			),
+			want: "initial_user:password@tcp(127.0.0.1:3306)/testDB",
+		},
+	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.b.getBaseDsn(); got != tt.want {
@@ -240,7 +338,23 @@ func Test_mySQLConnConfig_getExtraDsn(t *testing.T) {
 		b    *mySQLConnConfig
 		want string
 	}{
-		// TODO: Add test cases.
+		{
+			name: "check correct case of Test_mySQLConnConfig_getExtraDsn",
+			b: NewMySQLConnConfig(
+				"127.0.0.1",
+				"3306",
+				"initial_user",
+				"password",
+				"testDB",
+			).
+				SetCharset("utf8mb4").
+				SetParseTime("True").
+				SetLoc("Local").
+				SetTimeout("10s").
+				SetReadTimeout("30s").
+				SetWriteTimeout("30s"),
+			want: "charset=utf8mb4&parseTime=True&loc=Local&timeout=10s&readTimeout=30s&writeTimeout=30s",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -258,7 +372,7 @@ func Test_mySQLConnConfig_getDSN(t *testing.T) {
 		want string
 	}{
 		{
-			name: "full",
+			name: "check correct case of Test_mySQLConnConfig_getDSN",
 			b: NewMySQLConnConfig(
 				"127.0.0.1",
 				"3306",
@@ -271,10 +385,7 @@ func Test_mySQLConnConfig_getDSN(t *testing.T) {
 				SetLoc("Local").
 				SetTimeout("10s").
 				SetReadTimeout("30s").
-				SetWriteTimeout("30s").
-				SetMaxIdleConns(10).
-				SetMaxOpenConns(500).
-				SetConnMaxLifetime(time.Minute * 60),
+				SetWriteTimeout("30s"),
 			want: "initial_user:password@tcp(127.0.0.1:3306)/testDB?charset=utf8mb4&parseTime=True&loc=Local&timeout=10s&readTimeout=30s&writeTimeout=30s",
 		},
 	}
@@ -292,12 +403,36 @@ func Test_parseToSimpleDsn(t *testing.T) {
 		field      reflect.StructField
 		fieldValue reflect.Value
 	}
+	type tmpConfig struct {
+		abc string `dsnTag:"abc"`
+	}
+	getFieldAndFieldValue := func(config *tmpConfig) (reflect.StructField, reflect.Value) {
+		var field reflect.StructField
+		var fieldValue reflect.Value
+		cfgType := reflect.TypeOf(*config)
+		cfgValue := reflect.ValueOf(*config)
+		for i := 0; i < cfgType.NumField(); i++ {
+			field = cfgType.Field(i)
+			fieldValue = cfgValue.Field(i)
+			break
+		}
+		return field, fieldValue
+	}
+	tmpCfg := &tmpConfig{abc: "123"}
+	field1, fieldValue1 := getFieldAndFieldValue(tmpCfg)
 	tests := []struct {
 		name string
 		args args
 		want string
 	}{
-		// TODO: Add test cases.
+		{
+			name: "check correct case of Test_parseToSimpleDsn",
+			args: args{
+				field:      field1,
+				fieldValue: fieldValue1,
+			},
+			want: "abc=123",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
