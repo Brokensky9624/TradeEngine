@@ -7,6 +7,8 @@ import (
 	"tradeengine/utils/logger"
 )
 
+const defaultDB = "masterDB"
+
 var (
 	DBMngr *DBManager
 	once   sync.Once
@@ -42,6 +44,10 @@ func (mngr *DBManager) loadDBServiceMap() {
 	mngr.optionalDBServiceMap = mngr.factory.GetOptionalDBServiceMap()
 }
 
+func (mngr *DBManager) DefaultDBService() *internal.DBService {
+	return mngr.DBService(defaultDB)
+}
+
 func (mngr *DBManager) DBService(dbName string) *internal.DBService {
 	formatedDBName := internal.DBName(dbName)
 	if v, ok := mngr.requiredDBServiceMap[formatedDBName]; ok {
@@ -52,24 +58,19 @@ func (mngr *DBManager) DBService(dbName string) *internal.DBService {
 	return nil
 }
 
-func (mngr *DBManager) Run() <-chan interface{} {
-	finishedChan := make(chan interface{})
+func GetMngr() *DBManager {
+	return DBMngr
+}
+
+func (mngr *DBManager) Run() {
 	go func() {
-		defer close(finishedChan)
-		for {
-			select {
-			case <-mngr.ctx.Done():
-				for _, requiredDbSrv := range mngr.requiredDBServiceMap {
-					requiredDbSrv.Close()
-				}
-				for _, optionalDBSrv := range mngr.optionalDBServiceMap {
-					optionalDBSrv.Close()
-				}
-				return
-			default:
-				continue
-			}
+		<-mngr.ctx.Done()
+		for _, requiredDbSrv := range mngr.requiredDBServiceMap {
+			requiredDbSrv.Close()
 		}
+		for _, optionalDBSrv := range mngr.optionalDBServiceMap {
+			optionalDBSrv.Close()
+		}
+		logger.SERVER.Info("all db were closed")
 	}()
-	return finishedChan
 }
