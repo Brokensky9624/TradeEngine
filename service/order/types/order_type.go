@@ -3,14 +3,14 @@ package types
 type OrderType uint
 
 const (
-	OrderTypeBuy OrderType = iota
+	OrderTypeBuy OrderType = iota + 1
 	OrderTypeSell
 )
 
 type StatusType uint
 
 const (
-	OrderStatusNew StatusType = iota
+	OrderStatusNew StatusType = iota + 1
 )
 
 type Order struct {

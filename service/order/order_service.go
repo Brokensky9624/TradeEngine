@@ -47,6 +47,7 @@ func (s *OrderService) Create(param param.OrderCreateParam) error {
 	if err := param.Check(); err != nil {
 		err = tool.PrefixError(errPreFix, err)
 		logger.SERVER.Debug(err.Error())
+		return err
 	}
 
 	// create order

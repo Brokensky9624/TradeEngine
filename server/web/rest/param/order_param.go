@@ -10,7 +10,7 @@ type OrderCreateParam struct {
 	OwnerID   uint `json:"ownerID" required:"true"`
 	StockID   uint `json:"stockID" required:"true"`
 	Quantity  uint `json:"quantity" required:"true"`
-	Status    uint `json:"status" required:"true"`
+	Status    uint `json:"status"`
 }
 
 func (param OrderCreateParam) Check() error {

@@ -68,7 +68,7 @@ func (r *OrderREST) Edit(c *gin.Context) {
 		return
 	}
 	param.OwnerID = order.OwnerID
-	// edit member
+	// edit order
 	if err := r.orderSrv.Edit(param); err != nil {
 		c.JSON(http.StatusOK, resp.FailRespObj(err))
 		return
@@ -97,7 +97,7 @@ func (r *OrderREST) Delete(c *gin.Context) {
 		ID:      id,
 		OwnerID: order.ID,
 	}
-	// delete member
+	// delete order
 	if err := r.orderSrv.Delete(param); err != nil {
 		c.JSON(http.StatusOK, resp.FailRespObj(err))
 		return
@@ -112,17 +112,17 @@ func (r *OrderREST) OrderInfo(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, resp.FailRespObj(err))
 		return
 	}
-	// query member
+	// query order
 	param := param.OrderInfoParam{
 		ID: id,
 	}
-	member, err := r.orderSrv.OrderInfo(param)
+	order, err := r.orderSrv.OrderInfo(param)
 	if err != nil {
 		c.JSON(http.StatusOK, resp.FailRespObj(err))
 		return
 	}
 	message := fmt.Sprintf("Get %s order %d info successful !", types.GetOrderTypeStr(param.OrderType), param.ID)
-	c.JSON(http.StatusOK, resp.SuccessRespObj(message, member))
+	c.JSON(http.StatusOK, resp.SuccessRespObj(message, order))
 }
 
 func (r *OrderREST) OrderInfoList(c *gin.Context) {
@@ -131,16 +131,16 @@ func (r *OrderREST) OrderInfoList(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, resp.FailRespObj(err))
 		return
 	}
-	// get member list
-	memberList, err := r.orderSrv.OrderInfoList(param)
+	// get order list
+	orderList, err := r.orderSrv.OrderInfoList(param)
 	if err != nil {
 		c.JSON(http.StatusOK, resp.FailRespObj(err))
 		return
 	}
-	memberListLen := len(memberList)
-	dataList := make([]interface{}, memberListLen)
-	for i, member := range memberList {
-		dataList[i] = member
+	orderListLen := len(orderList)
+	dataList := make([]interface{}, orderListLen)
+	for i, order := range orderList {
+		dataList[i] = order
 	}
 	message := fmt.Sprintf("Get %s order info list successful !", types.GetOrderTypeStr(param.OrderType))
 	c.JSON(http.StatusOK, resp.SuccessRespObj(message, dataList...))
