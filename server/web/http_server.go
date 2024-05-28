@@ -11,6 +11,7 @@ import (
 	authFactory "tradeengine/server/web/auth/factory"
 	authInterfaces "tradeengine/server/web/auth/interfaces"
 	"tradeengine/server/web/rest/member"
+	"tradeengine/server/web/rest/order"
 	"tradeengine/service/interfaces"
 	"tradeengine/utils/logger"
 	"tradeengine/utils/panichandle"
@@ -21,7 +22,7 @@ import (
 
 const (
 	host               = "127.0.0.1"
-	port               = "8816"
+	port               = "6636"
 	readTimeout        = 30 * time.Second
 	writeTimeout       = 30 * time.Second
 	httpRestartPeriod  = 5 * time.Second
@@ -66,9 +67,7 @@ func (w *WebServer) Prepare() {
 }
 
 func (w *WebServer) loadJWT() {
-	factory := authFactory.GetJWTAuthFactory()
-	factory.SetSrvMngr(w.srvMngr)
-	factory.InitJWTAuth()
+	factory := authFactory.GetJWTAuthFactory(w.srvMngr)
 	w.jwtAuth = factory.GetJWTAuth()
 }
 
@@ -88,6 +87,7 @@ func (w *WebServer) loadMiddleWare() {
 
 func (w *WebServer) registerRoute() {
 	member.NewREST(w.mainGroup, w.srvMngr).RegisterRoute()
+	order.NewREST(w.mainGroup, w.srvMngr).RegisterRoute()
 }
 
 // support auto restart version

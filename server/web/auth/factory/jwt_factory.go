@@ -10,18 +10,19 @@ type AppleBoyJWTAuthFactory struct {
 	srvMngr serviceInterfaces.IServiceManager
 }
 
-func (f *AppleBoyJWTAuthFactory) InitJWTAuth() {
-	f.jwtAuth = NewAppleBoyJWTAuth(f.srvMngr)
+func NewAppleBoyJWTAuthFactory(srvMngr serviceInterfaces.IServiceManager) *AppleBoyJWTAuthFactory {
+	return &AppleBoyJWTAuthFactory{
+		srvMngr: srvMngr,
+	}
 }
 
 func (f *AppleBoyJWTAuthFactory) GetJWTAuth() authInterfaces.IJWTAuth {
+	if f.jwtAuth == nil {
+		f.jwtAuth = NewAppleBoyJWTAuth(f.srvMngr)
+	}
 	return f.jwtAuth
 }
 
-func (f *AppleBoyJWTAuthFactory) SetSrvMngr(srvMngr serviceInterfaces.IServiceManager) {
-	f.srvMngr = srvMngr
-}
-
-func GetJWTAuthFactory() authInterfaces.IJWTAuthFactory {
-	return new(AppleBoyJWTAuthFactory)
+func GetJWTAuthFactory(srvMngr serviceInterfaces.IServiceManager) authInterfaces.IJWTAuthFactory {
+	return NewAppleBoyJWTAuthFactory(srvMngr)
 }

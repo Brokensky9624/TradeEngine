@@ -10,6 +10,7 @@ import (
 	"tradeengine/service/db"
 	serviceManager "tradeengine/service/manager"
 	"tradeengine/service/member"
+	"tradeengine/service/order"
 	"tradeengine/utils/logger"
 )
 
@@ -32,6 +33,8 @@ func main() {
 	srvMngr := serviceManager.NewManager()
 	memberSrv := member.NewService(dbMngr.DefaultDBService())
 	srvMngr.SetMemberService(memberSrv)
+	orderSrv := order.NewService(dbMngr.DefaultDBService())
+	srvMngr.SetOrderService(orderSrv)
 
 	// init web server handling restful
 	webService := web.NewWebServer(rootContext, srvMngr)

@@ -5,8 +5,7 @@ import (
 	"net/http"
 	"tradeengine/server/web/rest/param"
 	"tradeengine/server/web/rest/resp"
-	"tradeengine/service/interfaces"
-	"tradeengine/service/member/types"
+	serviceInterfaces "tradeengine/service/interfaces"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,10 +13,10 @@ import (
 type MemberREST struct {
 	mainGroup    *gin.RouterGroup
 	currentGroup *gin.RouterGroup
-	memberSrv    types.IMemberSrv
+	memberSrv    serviceInterfaces.IMemberSrv
 }
 
-func NewREST(mainGroup *gin.RouterGroup, srvMngr interfaces.IServiceManager) *MemberREST {
+func NewREST(mainGroup *gin.RouterGroup, srvMngr serviceInterfaces.IServiceManager) *MemberREST {
 	rest := &MemberREST{
 		mainGroup: mainGroup,
 		memberSrv: srvMngr.MemberService(),

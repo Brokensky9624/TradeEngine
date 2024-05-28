@@ -16,17 +16,21 @@ import (
 )
 
 var (
-	MemberSrv *MemberService
+	memberSrv *MemberService
 	once      sync.Once
 )
 
 func NewService(db *dbTypes.DBService) *MemberService {
 	once.Do(func() {
-		MemberSrv = &MemberService{
+		memberSrv = &MemberService{
 			db: db,
 		}
 	})
-	return MemberSrv
+	return memberSrv
+}
+
+func GetService() *MemberService {
+	return memberSrv
 }
 
 type MemberService struct {

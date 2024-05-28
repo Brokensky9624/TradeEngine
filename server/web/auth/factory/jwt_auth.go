@@ -31,9 +31,11 @@ type AppleBoyJWTAuth struct {
 }
 
 func NewAppleBoyJWTAuth(srvMngr serviceInterfaces.IServiceManager) *AppleBoyJWTAuth {
-	return &AppleBoyJWTAuth{
+	auth := &AppleBoyJWTAuth{
 		srvMngr: srvMngr,
 	}
+	auth.initialize()
+	return auth
 }
 
 func (a *AppleBoyJWTAuth) initialize() {

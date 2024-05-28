@@ -1,8 +1,6 @@
 package interfaces
 
 import (
-	"tradeengine/service/interfaces"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,7 +12,5 @@ type IJWTAuth interface {
 }
 
 type IJWTAuthFactory interface {
-	InitJWTAuth()
 	GetJWTAuth() IJWTAuth
-	SetSrvMngr(mngr interfaces.IServiceManager)
 }

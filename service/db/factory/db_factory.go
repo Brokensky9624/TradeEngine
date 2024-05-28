@@ -4,6 +4,7 @@ import (
 	"time"
 	"tradeengine/service/db/internal"
 	"tradeengine/service/db/model"
+	orderModel "tradeengine/service/db/model/order"
 	"tradeengine/service/db/types"
 	"tradeengine/utils/logger"
 	"tradeengine/utils/panichandle"
@@ -67,7 +68,11 @@ func (f *DefaulDBFactory) loadRequiredDBServiceMap() {
 		SetReadTimeout("60s").
 		SetWriteTimeout("60s")
 	builder := internal.NewMySQLDBBuilder(connConfig)
-	modelList := []interface{}{model.Member{}}
+	modelList := []interface{}{
+		model.Member{},
+		orderModel.OrderBuy{},
+		orderModel.OrderSell{},
+	}
 	dbServ := types.NewDBService(builder, modelList)
 	dbServ.SetMaxIdleConns(20)
 	dbServ.SetMaxOpenConns(200)

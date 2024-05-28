@@ -3,7 +3,7 @@ package manager
 import (
 	"sync"
 
-	memberTypes "tradeengine/service/member/types"
+	serverInterfaces "tradeengine/service/interfaces"
 )
 
 var (
@@ -23,14 +23,24 @@ func Manager() *ServiceManager {
 }
 
 type ServiceManager struct {
-	MemberSrv memberTypes.IMemberSrv
+	MemberSrv serverInterfaces.IMemberSrv
+	OrderSrv  serverInterfaces.IOrderSrv
 }
 
-func (m *ServiceManager) SetMemberService(srv memberTypes.IMemberSrv) *ServiceManager {
+func (m *ServiceManager) SetMemberService(srv serverInterfaces.IMemberSrv) *ServiceManager {
 	m.MemberSrv = srv
 	return m
 }
 
-func (m *ServiceManager) MemberService() memberTypes.IMemberSrv {
+func (m *ServiceManager) MemberService() serverInterfaces.IMemberSrv {
 	return m.MemberSrv
+}
+
+func (m *ServiceManager) SetOrderService(srv serverInterfaces.IOrderSrv) *ServiceManager {
+	m.OrderSrv = srv
+	return m
+}
+
+func (m *ServiceManager) OrderService() serverInterfaces.IOrderSrv {
+	return m.OrderSrv
 }

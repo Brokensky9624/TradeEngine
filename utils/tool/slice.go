@@ -9,3 +9,11 @@ func FilterSlice[T any](sl []T, filterFunc func(el T) bool) []T {
 	}
 	return newSl
 }
+
+func MapSlice[T any](sl []T, mapFunc func(el T) T) []T {
+	newSl := make([]T, len(sl))
+	for i, el := range sl {
+		newSl[i] = mapFunc(el)
+	}
+	return newSl
+}
