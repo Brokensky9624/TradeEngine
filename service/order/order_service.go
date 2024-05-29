@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"tradeengine/server/web/rest/param"
-	model "tradeengine/service/db/model/order"
+	"tradeengine/service/db/model"
 	dbTypes "tradeengine/service/db/types"
 	"tradeengine/service/order/types"
 
@@ -53,11 +53,11 @@ func (s *OrderService) Create(param param.OrderCreateParam) error {
 	// create order
 	orderType := types.OrderType(param.OrderType)
 	if orderType == types.OrderTypeBuy {
-		if err := s.createOrderBuy(param); err != nil {
+		if err := s.createBuyOrder(param); err != nil {
 			return err
 		}
 	} else if orderType == types.OrderTypeSell {
-		if err := s.createOrderSell(param); err != nil {
+		if err := s.createSellOrder(param); err != nil {
 			return err
 		}
 	} else {
@@ -82,11 +82,11 @@ func (s *OrderService) Edit(param param.OrderEditParam) error {
 	// update order
 	orderType := types.OrderType(param.OrderType)
 	if orderType == types.OrderTypeBuy {
-		if err := s.editOrderBuy(param); err != nil {
+		if err := s.editBuyOrder(param); err != nil {
 			return err
 		}
 	} else if orderType == types.OrderTypeSell {
-		if err := s.editOrderSell(param); err != nil {
+		if err := s.editSellOrder(param); err != nil {
 			return err
 		}
 	} else {
@@ -110,11 +110,11 @@ func (s *OrderService) Delete(param param.OrderDeleteParam) error {
 	// delete order
 	orderType := types.OrderType(param.OrderType)
 	if orderType == types.OrderTypeBuy {
-		if err := s.deleteOrderBuy(param); err != nil {
+		if err := s.deleteBuyOrder(param); err != nil {
 			return err
 		}
 	} else if orderType == types.OrderTypeSell {
-		if err := s.deleteOrderSell(param); err != nil {
+		if err := s.deleteSellOrder(param); err != nil {
 			return err
 		}
 	} else {
@@ -131,13 +131,13 @@ func (s *OrderService) OrderInfo(param param.OrderInfoParam) (*types.Order, erro
 	// get order info
 	orderType := types.OrderType(param.OrderType)
 	if orderType == types.OrderTypeBuy {
-		order, err := s.getOrderBuyInfo(param)
+		order, err := s.getBuyOrderInfo(param)
 		if err != nil {
 			return nil, err
 		}
 		return order, nil
 	} else if orderType == types.OrderTypeSell {
-		order, err := s.getOrderSellInfo(param)
+		order, err := s.getSellOrderInfo(param)
 		if err != nil {
 			return nil, err
 		}
@@ -155,13 +155,13 @@ func (s *OrderService) OrderInfoList(param param.OrderInfoListParam) ([]types.Or
 	// find order list
 	orderType := types.OrderType(param.OrderType)
 	if orderType == types.OrderTypeBuy {
-		orderList, err := s.getOrderBuyInfoList(param)
+		orderList, err := s.getBuyOrderInfoList(param)
 		if err != nil {
 			return nil, err
 		}
 		return orderList, nil
 	} else if orderType == types.OrderTypeSell {
-		orderList, err := s.getOrderSellInfoList(param)
+		orderList, err := s.getSellOrderInfoList(param)
 		if err != nil {
 			return nil, err
 		}
@@ -175,30 +175,28 @@ func (s *OrderService) OrderInfoList(param param.OrderInfoListParam) ([]types.Or
 
 // public: buy
 
-func OrderBuyModelToOrder(m model.OrderBuy) types.Order {
+func BuyOrderModelToOrder(m model.BuyOrder) types.Order {
 	order := types.Order{
-		ID:        m.ID,
-		OrderType: uint(types.OrderTypeBuy),
-		Price:     m.Price,
-		OwnerID:   m.OwnerID,
-		Quantity:  m.Quantity,
-		StockID:   m.StockID,
-		Status:    m.Status,
+		ID:          m.ID,
+		OrderType:   uint(types.OrderTypeBuy),
+		Price:       m.Price,
+		OwnerID:     m.OwnerID,
+		Quantity:    m.Quantity,
+		StockInfoID: m.StockInfoID,
 	}
 	return order
 }
 
-func OrderBuyModelListToOrderList(modelList []model.OrderBuy) []types.Order {
+func BuyOrderModelListToOrderList(modelList []model.BuyOrder) []types.Order {
 	orderInfoList := make([]types.Order, len(modelList))
 	for i, m := range modelList {
 		order := types.Order{
-			ID:        m.ID,
-			OrderType: uint(types.OrderTypeBuy),
-			Price:     m.Price,
-			OwnerID:   m.OwnerID,
-			Quantity:  m.Quantity,
-			StockID:   m.StockID,
-			Status:    m.Status,
+			ID:          m.ID,
+			OrderType:   uint(types.OrderTypeBuy),
+			Price:       m.Price,
+			OwnerID:     m.OwnerID,
+			Quantity:    m.Quantity,
+			StockInfoID: m.StockInfoID,
 		}
 		orderInfoList[i] = order
 	}
@@ -207,30 +205,28 @@ func OrderBuyModelListToOrderList(modelList []model.OrderBuy) []types.Order {
 
 // public: sell
 
-func OrderSellModelToOrder(m model.OrderSell) types.Order {
+func SellOrderModelToOrder(m model.SellOrder) types.Order {
 	order := types.Order{
-		ID:        m.ID,
-		OrderType: uint(types.OrderTypeSell),
-		Price:     m.Price,
-		OwnerID:   m.OwnerID,
-		Quantity:  m.Quantity,
-		StockID:   m.StockID,
-		Status:    m.Status,
+		ID:          m.ID,
+		OrderType:   uint(types.OrderTypeSell),
+		Price:       m.Price,
+		OwnerID:     m.OwnerID,
+		Quantity:    m.Quantity,
+		StockInfoID: m.StockInfoID,
 	}
 	return order
 }
 
-func OrderSellModelListToOrderList(modelList []model.OrderSell) []types.Order {
+func SellOrderModelListToOrderList(modelList []model.SellOrder) []types.Order {
 	orderInfoList := make([]types.Order, len(modelList))
 	for i, m := range modelList {
 		order := types.Order{
-			ID:        m.ID,
-			OrderType: uint(types.OrderTypeSell),
-			Price:     m.Price,
-			OwnerID:   m.OwnerID,
-			Quantity:  m.Quantity,
-			StockID:   m.StockID,
-			Status:    m.Status,
+			ID:          m.ID,
+			OrderType:   uint(types.OrderTypeSell),
+			Price:       m.Price,
+			OwnerID:     m.OwnerID,
+			Quantity:    m.Quantity,
+			StockInfoID: m.StockInfoID,
 		}
 		orderInfoList[i] = order
 	}
@@ -239,14 +235,13 @@ func OrderSellModelListToOrderList(modelList []model.OrderSell) []types.Order {
 
 // private: order buy
 
-func (s *OrderService) createOrderBuy(param param.OrderCreateParam) error {
+func (s *OrderService) createBuyOrder(param param.OrderCreateParam) error {
 	var errPreFix = "failed to create buy order"
-	createModel := &model.OrderBuy{
-		Price:    param.Price,
-		OwnerID:  param.OwnerID,
-		Quantity: param.Quantity,
-		StockID:  param.StockID,
-		Status:   uint(types.OrderStatusNew),
+	createModel := &model.BuyOrder{
+		Price:       param.Price,
+		OwnerID:     param.OwnerID,
+		Quantity:    param.Quantity,
+		StockInfoID: param.StockInfoID,
 	}
 	if err := s.db.Create(createModel).Error; err != nil {
 		err = tool.PrefixError(errPreFix, err)
@@ -257,16 +252,16 @@ func (s *OrderService) createOrderBuy(param param.OrderCreateParam) error {
 	return nil
 }
 
-func (s *OrderService) editOrderBuy(param param.OrderEditParam) error {
+func (s *OrderService) editBuyOrder(param param.OrderEditParam) error {
 	var errPreFix = "failed to modify buy order"
-	findModel := &model.OrderBuy{}
+	findModel := &model.BuyOrder{}
 	findModel.ID = param.ID
 	findModel.OwnerID = param.OwnerID
-	updateModel := &model.OrderBuy{}
+	updateModel := &model.BuyOrder{}
 	updateModel.ID = param.ID
 	updateModel.Price = param.Price
 	updateModel.Quantity = param.Quantity
-	if _, err := s.updateOneOrderBuyByModel(findModel, updateModel); err != nil {
+	if _, err := s.updateOneBuyOrderByModel(findModel, updateModel); err != nil {
 		err = tool.PrefixError(errPreFix, err)
 		logger.SERVER.Debug(err.Error())
 		return err
@@ -275,12 +270,12 @@ func (s *OrderService) editOrderBuy(param param.OrderEditParam) error {
 	return nil
 }
 
-func (s *OrderService) deleteOrderBuy(param param.OrderDeleteParam) error {
+func (s *OrderService) deleteBuyOrder(param param.OrderDeleteParam) error {
 	var errPreFix = "failed to delete buy order"
-	findModel := &model.OrderBuy{}
+	findModel := &model.BuyOrder{}
 	findModel.ID = param.ID
 	findModel.OwnerID = param.OwnerID
-	_, err := s.deleteOneOrderBuyByModel(findModel)
+	_, err := s.deleteOneBuyOrderByModel(findModel)
 	if err != nil {
 		err = tool.PrefixError(errPreFix, err)
 		logger.SERVER.Debug(err.Error())
@@ -290,26 +285,26 @@ func (s *OrderService) deleteOrderBuy(param param.OrderDeleteParam) error {
 	return nil
 }
 
-func (s *OrderService) getOrderBuyInfo(param param.OrderInfoParam) (*types.Order, error) {
+func (s *OrderService) getBuyOrderInfo(param param.OrderInfoParam) (*types.Order, error) {
 	var errPreFix = "failed to get buy order info"
-	findModel := &model.OrderBuy{}
+	findModel := &model.BuyOrder{}
 	findModel.ID = param.ID
-	_, err := s.takeOrderBuyByModel(findModel)
+	_, err := s.takeBuyOrderByModel(findModel)
 	if err != nil {
 		err = tool.PrefixError(errPreFix, err)
 		logger.SERVER.Debug(err.Error())
 		return nil, err
 	}
 	logger.SERVER.Info("buy order info %d has got!", findModel.ID)
-	order := OrderBuyModelToOrder(*findModel)
+	order := BuyOrderModelToOrder(*findModel)
 	return &order, nil
 }
 
-func (s *OrderService) getOrderBuyInfoList(param param.OrderInfoListParam) ([]types.Order, error) {
+func (s *OrderService) getBuyOrderInfoList(param param.OrderInfoListParam) ([]types.Order, error) {
 	var errPreFix = "failed to get buy order info list"
-	findModel := &model.OrderBuy{}
+	findModel := &model.BuyOrder{}
 	findModel.OwnerID = param.OwnerID
-	var modelInfoList []model.OrderBuy
+	var modelInfoList []model.BuyOrder
 	tx := s.db.Where(*findModel).
 		Order(clause.OrderByColumn{Column: clause.Column{Name: param.OrderBy}, Desc: param.OrderDesc}).
 		Find(&modelInfoList)
@@ -318,12 +313,12 @@ func (s *OrderService) getOrderBuyInfoList(param param.OrderInfoListParam) ([]ty
 		logger.SERVER.Debug(err.Error())
 		return nil, err
 	}
-	orderInfoList := OrderBuyModelListToOrderList(modelInfoList)
+	orderInfoList := BuyOrderModelListToOrderList(modelInfoList)
 	logger.SERVER.Info("buy order info list has got, len: %d !", len(orderInfoList))
 	return orderInfoList, nil
 }
 
-func (s *OrderService) takeOrderBuyByModel(findModel *model.OrderBuy) (*gorm.DB, error) {
+func (s *OrderService) takeBuyOrderByModel(findModel *model.BuyOrder) (*gorm.DB, error) {
 	tx := s.db.Where(*findModel).Take(findModel)
 	if tx.Error != nil {
 		return nil, tx.Error
@@ -331,7 +326,7 @@ func (s *OrderService) takeOrderBuyByModel(findModel *model.OrderBuy) (*gorm.DB,
 	return tx, nil
 }
 
-func (s *OrderService) takeOrderBuyBySeqAndModel(seq *gorm.DB, findModel *model.OrderBuy) (*gorm.DB, error) {
+func (s *OrderService) takeBuyOrderBySeqAndModel(seq *gorm.DB, findModel *model.BuyOrder) (*gorm.DB, error) {
 	tx := seq.Take(findModel)
 	if tx.Error != nil {
 		return nil, tx.Error
@@ -339,19 +334,19 @@ func (s *OrderService) takeOrderBuyBySeqAndModel(seq *gorm.DB, findModel *model.
 	return tx, nil
 }
 
-func (s *OrderService) updateOneOrderBuyByModel(findModel *model.OrderBuy, updateModel *model.OrderBuy) (*gorm.DB, error) {
-	tx, err := s.takeOrderBuyByModel(findModel)
+func (s *OrderService) updateOneBuyOrderByModel(findModel *model.BuyOrder, updateModel *model.BuyOrder) (*gorm.DB, error) {
+	tx, err := s.takeBuyOrderByModel(findModel)
 	if err != nil {
 		return nil, err
 	}
-	tx, err = s.updateOneOrderBuyBySeqAndModel(tx, updateModel)
+	tx, err = s.updateOneBuyOrderBySeqAndModel(tx, updateModel)
 	if err != nil {
 		return nil, err
 	}
 	return tx, nil
 }
 
-func (s *OrderService) updateOneOrderBuyBySeqAndModel(seq *gorm.DB, updateModel *model.OrderBuy) (*gorm.DB, error) {
+func (s *OrderService) updateOneBuyOrderBySeqAndModel(seq *gorm.DB, updateModel *model.BuyOrder) (*gorm.DB, error) {
 	tx := seq.Updates(updateModel)
 	if tx.Error != nil {
 		return nil, tx.Error
@@ -359,30 +354,30 @@ func (s *OrderService) updateOneOrderBuyBySeqAndModel(seq *gorm.DB, updateModel 
 	return tx, nil
 }
 
-func (s *OrderService) deleteOneOrderBuyByModel(findModel *model.OrderBuy) (*gorm.DB, error) {
-	tx, err := s.takeOrderBuyByModel(findModel)
+func (s *OrderService) deleteOneBuyOrderByModel(findModel *model.BuyOrder) (*gorm.DB, error) {
+	tx, err := s.takeBuyOrderByModel(findModel)
 	if err != nil {
 		return nil, err
 	}
-	tx, err = s.deleteOneOrderBuyBySeqAndModel(tx, findModel)
+	tx, err = s.deleteOneBuyOrderBySeqAndModel(tx, findModel)
 	if err != nil {
 		return nil, err
 	}
 	return tx, nil
 }
 
-func (s *OrderService) deleteOneOrderBuyBySeqAndModel(seq *gorm.DB, findModel *model.OrderBuy) (*gorm.DB, error) {
+func (s *OrderService) deleteOneBuyOrderBySeqAndModel(seq *gorm.DB, findModel *model.BuyOrder) (*gorm.DB, error) {
 	tx := seq.Delete(findModel)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
-	if _, err := s.deleteUnscopedOneOrderBuyByModel(findModel); err != nil {
+	if _, err := s.deleteUnscopedOneBuyOrderByModel(findModel); err != nil {
 		return nil, err
 	}
 	return tx, nil
 }
 
-func (s *OrderService) deleteUnscopedOneOrderBuyByModel(findModel *model.OrderBuy) (*gorm.DB, error) {
+func (s *OrderService) deleteUnscopedOneBuyOrderByModel(findModel *model.BuyOrder) (*gorm.DB, error) {
 	tx := s.db.Unscoped().Delete(findModel)
 	if tx.Error != nil {
 		return nil, tx.Error
@@ -392,14 +387,13 @@ func (s *OrderService) deleteUnscopedOneOrderBuyByModel(findModel *model.OrderBu
 
 // private: order sell
 
-func (s *OrderService) createOrderSell(param param.OrderCreateParam) error {
+func (s *OrderService) createSellOrder(param param.OrderCreateParam) error {
 	var errPreFix = "failed to create sell order"
-	createModel := &model.OrderSell{
-		Price:    param.Price,
-		OwnerID:  param.OwnerID,
-		Quantity: param.Quantity,
-		StockID:  param.StockID,
-		Status:   uint(types.OrderStatusNew),
+	createModel := &model.SellOrder{
+		Price:       param.Price,
+		OwnerID:     param.OwnerID,
+		Quantity:    param.Quantity,
+		StockInfoID: param.StockInfoID,
 	}
 	if err := s.db.Create(createModel).Error; err != nil {
 		err = tool.PrefixError(errPreFix, err)
@@ -410,16 +404,16 @@ func (s *OrderService) createOrderSell(param param.OrderCreateParam) error {
 	return nil
 }
 
-func (s *OrderService) editOrderSell(param param.OrderEditParam) error {
+func (s *OrderService) editSellOrder(param param.OrderEditParam) error {
 	var errPreFix = "failed to modify sell order"
-	findModel := &model.OrderSell{}
+	findModel := &model.SellOrder{}
 	findModel.ID = param.ID
 	findModel.OwnerID = param.OwnerID
-	updateModel := &model.OrderSell{}
+	updateModel := &model.SellOrder{}
 	updateModel.ID = param.ID
 	updateModel.Price = param.Price
 	updateModel.Quantity = param.Quantity
-	_, err := s.updateOneOrderSellByModel(findModel, updateModel)
+	_, err := s.updateOneSellOrderByModel(findModel, updateModel)
 	if err != nil {
 		err = tool.PrefixError(errPreFix, err)
 		logger.SERVER.Debug(err.Error())
@@ -429,12 +423,12 @@ func (s *OrderService) editOrderSell(param param.OrderEditParam) error {
 	return nil
 }
 
-func (s *OrderService) deleteOrderSell(param param.OrderDeleteParam) error {
+func (s *OrderService) deleteSellOrder(param param.OrderDeleteParam) error {
 	var errPreFix = "failed to delete sell order"
-	findModel := &model.OrderSell{}
+	findModel := &model.SellOrder{}
 	findModel.ID = param.ID
 	findModel.OwnerID = param.OwnerID
-	_, err := s.deleteOneOrderSellByModel(findModel)
+	_, err := s.deleteOneSellOrderByModel(findModel)
 	if err != nil {
 		err = tool.PrefixError(errPreFix, err)
 		logger.SERVER.Debug(err.Error())
@@ -444,22 +438,22 @@ func (s *OrderService) deleteOrderSell(param param.OrderDeleteParam) error {
 	return nil
 }
 
-func (s *OrderService) getOrderSellInfo(param param.OrderInfoParam) (*types.Order, error) {
+func (s *OrderService) getSellOrderInfo(param param.OrderInfoParam) (*types.Order, error) {
 	var errPreFix = "failed to get sell order info"
-	findModel := &model.OrderSell{}
+	findModel := &model.SellOrder{}
 	findModel.ID = param.ID
-	_, err := s.takeOrderSellByModel(findModel)
+	_, err := s.takeSellOrderByModel(findModel)
 	if err != nil {
 		err = tool.PrefixError(errPreFix, err)
 		logger.SERVER.Debug(err.Error())
 		return nil, err
 	}
 	logger.SERVER.Info("sell order info %d has got!", findModel.ID)
-	order := OrderSellModelToOrder(*findModel)
+	order := SellOrderModelToOrder(*findModel)
 	return &order, nil
 }
 
-func (s *OrderService) takeOrderSellByModel(findModel *model.OrderSell) (*gorm.DB, error) {
+func (s *OrderService) takeSellOrderByModel(findModel *model.SellOrder) (*gorm.DB, error) {
 	tx := s.db.Where(*findModel).Take(findModel)
 	if tx.Error != nil {
 		return nil, tx.Error
@@ -467,7 +461,7 @@ func (s *OrderService) takeOrderSellByModel(findModel *model.OrderSell) (*gorm.D
 	return tx, nil
 }
 
-func (s *OrderService) takeOrderSellBySeqAndModel(seq *gorm.DB, findModel *model.OrderSell) (*gorm.DB, error) {
+func (s *OrderService) takeSellOrderBySeqAndModel(seq *gorm.DB, findModel *model.SellOrder) (*gorm.DB, error) {
 	tx := seq.Take(findModel)
 	if tx.Error != nil {
 		return nil, tx.Error
@@ -475,18 +469,18 @@ func (s *OrderService) takeOrderSellBySeqAndModel(seq *gorm.DB, findModel *model
 	return tx, nil
 }
 
-func (s *OrderService) updateOneOrderSellByModel(findModel *model.OrderSell, updateModel *model.OrderSell) (*gorm.DB, error) {
-	tx, err := s.takeOrderSellByModel(findModel)
+func (s *OrderService) updateOneSellOrderByModel(findModel *model.SellOrder, updateModel *model.SellOrder) (*gorm.DB, error) {
+	tx, err := s.takeSellOrderByModel(findModel)
 	if err != nil {
 		return nil, err
 	}
-	if tx, err = s.updateOneOrderSellBySeqAndModel(tx, updateModel); err != nil {
+	if tx, err = s.updateOneSellOrderBySeqAndModel(tx, updateModel); err != nil {
 		return nil, tx.Error
 	}
 	return tx, nil
 }
 
-func (s *OrderService) updateOneOrderSellBySeqAndModel(seq *gorm.DB, updateModel *model.OrderSell) (*gorm.DB, error) {
+func (s *OrderService) updateOneSellOrderBySeqAndModel(seq *gorm.DB, updateModel *model.SellOrder) (*gorm.DB, error) {
 	tx := seq.Updates(updateModel)
 	if tx.Error != nil {
 		return nil, tx.Error
@@ -494,30 +488,30 @@ func (s *OrderService) updateOneOrderSellBySeqAndModel(seq *gorm.DB, updateModel
 	return tx, nil
 }
 
-func (s *OrderService) deleteOneOrderSellByModel(findModel *model.OrderSell) (*gorm.DB, error) {
-	tx, err := s.takeOrderSellByModel(findModel)
+func (s *OrderService) deleteOneSellOrderByModel(findModel *model.SellOrder) (*gorm.DB, error) {
+	tx, err := s.takeSellOrderByModel(findModel)
 	if err != nil {
 		return nil, err
 	}
-	tx, err = s.deleteOneOrderSellBySeqAndModel(tx, findModel)
+	tx, err = s.deleteOneSellOrderBySeqAndModel(tx, findModel)
 	if err != nil {
 		return nil, err
 	}
 	return tx, nil
 }
 
-func (s *OrderService) deleteOneOrderSellBySeqAndModel(seq *gorm.DB, findModel *model.OrderSell) (*gorm.DB, error) {
+func (s *OrderService) deleteOneSellOrderBySeqAndModel(seq *gorm.DB, findModel *model.SellOrder) (*gorm.DB, error) {
 	tx := seq.Delete(findModel)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
-	if _, err := s.deleteUnscopedOneOrderSellByModel(findModel); err != nil {
+	if _, err := s.deleteUnscopedOneSellOrderByModel(findModel); err != nil {
 		return nil, err
 	}
 	return tx, nil
 }
 
-func (s *OrderService) deleteUnscopedOneOrderSellByModel(findModel *model.OrderSell) (*gorm.DB, error) {
+func (s *OrderService) deleteUnscopedOneSellOrderByModel(findModel *model.SellOrder) (*gorm.DB, error) {
 	tx := s.db.Unscoped().Delete(findModel)
 	if tx.Error != nil {
 		return nil, tx.Error
@@ -525,11 +519,11 @@ func (s *OrderService) deleteUnscopedOneOrderSellByModel(findModel *model.OrderS
 	return tx, nil
 }
 
-func (s *OrderService) getOrderSellInfoList(param param.OrderInfoListParam) ([]types.Order, error) {
+func (s *OrderService) getSellOrderInfoList(param param.OrderInfoListParam) ([]types.Order, error) {
 	var errPreFix = "failed to get sell order info list"
-	findModel := &model.OrderSell{}
+	findModel := &model.SellOrder{}
 	findModel.OwnerID = param.OwnerID
-	var modelInfoList []model.OrderSell
+	var modelInfoList []model.SellOrder
 	tx := s.db.Where(*findModel).
 		Order(clause.OrderByColumn{Column: clause.Column{Name: param.OrderBy}, Desc: param.OrderDesc}).
 		Find(&modelInfoList)
@@ -538,7 +532,7 @@ func (s *OrderService) getOrderSellInfoList(param param.OrderInfoListParam) ([]t
 		logger.SERVER.Debug(err.Error())
 		return nil, err
 	}
-	orderInfoList := OrderSellModelListToOrderList(modelInfoList)
+	orderInfoList := SellOrderModelListToOrderList(modelInfoList)
 	logger.SERVER.Info("sell order info list has got, len: %d !", len(orderInfoList))
 	return orderInfoList, nil
 }

@@ -7,29 +7,22 @@ const (
 	OrderTypeSell
 )
 
-type StatusType uint
-
-const (
-	OrderStatusNew StatusType = iota + 1
-)
-
 type Order struct {
-	ID        uint `json:"id"`
-	OrderType uint `json:"orderType"`
-	Price     uint `json:"account"`
-	OwnerID   uint `json:"ownerID"`
-	Quantity  uint `json:"password"`
-	StockID   uint `json:"stockID"`
-	Status    uint `json:"status"`
+	ID          uint    `json:"id"`
+	OrderType   uint    `json:"orderType"`
+	Price       float64 `json:"account"`
+	OwnerID     uint    `json:"ownerID"`
+	Quantity    uint    `json:"password"`
+	StockInfoID uint    `json:"StockInfoID"`
 }
 
-func IsOrderBuy(a uint) bool {
+func IsBuyOrder(a uint) bool {
 	return OrderType(a) == OrderTypeBuy
 }
 
 func GetOrderTypeStr(a uint) string {
 	d := "buy"
-	if !IsOrderBuy(a) {
+	if !IsBuyOrder(a) {
 		d = "sell"
 	}
 	return d

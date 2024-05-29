@@ -4,11 +4,14 @@ import (
 	param "tradeengine/server/web/rest/param"
 	memberTypes "tradeengine/service/member/types"
 	orderTypes "tradeengine/service/order/types"
+	stockInfoTypes "tradeengine/service/stockinfo/types"
+	walletTypes "tradeengine/service/wallet/types"
 )
 
 type IServiceManager interface {
 	MemberService() IMemberSrv
 	OrderService() IOrderSrv
+	StockInfoService() IStockInfoSrv
 }
 
 type IMemberSrv interface {
@@ -27,4 +30,17 @@ type IOrderSrv interface {
 	Delete(param param.OrderDeleteParam) error
 	OrderInfo(param param.OrderInfoParam) (*orderTypes.Order, error)
 	OrderInfoList(param param.OrderInfoListParam) ([]orderTypes.Order, error)
+}
+
+type IStockInfoSrv interface {
+	Create(param param.StockInfoCreateParam) error
+	StockInfo(param param.StockInfoParam) (*stockInfoTypes.StockInfo, error)
+	StockInfoList(param param.StockInfoListParam) ([]stockInfoTypes.StockInfo, error)
+}
+
+type IWalletSrv interface {
+	Create(param param.WalletCreateParam) error
+	Edit(param param.WalletEditParam) error
+	WalletInfo(param param.WalletInfoParam) (*walletTypes.Wallet, error)
+	WalletInfoList(param param.WalletInfoListParam) ([]walletTypes.Wallet, error)
 }

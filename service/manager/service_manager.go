@@ -23,8 +23,10 @@ func Manager() *ServiceManager {
 }
 
 type ServiceManager struct {
-	MemberSrv serverInterfaces.IMemberSrv
-	OrderSrv  serverInterfaces.IOrderSrv
+	MemberSrv    serverInterfaces.IMemberSrv
+	OrderSrv     serverInterfaces.IOrderSrv
+	StockInfoSrv serverInterfaces.IStockInfoSrv
+	WalletSrv    serverInterfaces.IWalletSrv
 }
 
 func (m *ServiceManager) SetMemberService(srv serverInterfaces.IMemberSrv) *ServiceManager {
@@ -43,4 +45,22 @@ func (m *ServiceManager) SetOrderService(srv serverInterfaces.IOrderSrv) *Servic
 
 func (m *ServiceManager) OrderService() serverInterfaces.IOrderSrv {
 	return m.OrderSrv
+}
+
+func (m *ServiceManager) SetStockInfoService(srv serverInterfaces.IStockInfoSrv) *ServiceManager {
+	m.StockInfoSrv = srv
+	return m
+}
+
+func (m *ServiceManager) StockInfoService() serverInterfaces.IStockInfoSrv {
+	return m.StockInfoSrv
+}
+
+func (m *ServiceManager) SetWalletService(srv serverInterfaces.IWalletSrv) *ServiceManager {
+	m.WalletSrv = srv
+	return m
+}
+
+func (m *ServiceManager) WalletService() serverInterfaces.IWalletSrv {
+	return m.WalletSrv
 }

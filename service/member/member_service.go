@@ -2,16 +2,17 @@ package member
 
 import (
 	"errors"
-	"fmt"
 	"sync"
 
 	"tradeengine/server/web/rest/param"
 	"tradeengine/service/db/model"
 	dbTypes "tradeengine/service/db/types"
+	serviceInterfaces "tradeengine/service/interfaces"
 	"tradeengine/service/member/types"
 
 	"gorm.io/gorm"
 
+	"tradeengine/utils/logger"
 	"tradeengine/utils/tool"
 )
 
@@ -20,10 +21,11 @@ var (
 	once      sync.Once
 )
 
-func NewService(db *dbTypes.DBService) *MemberService {
+func NewService(db *dbTypes.DBService, walletSrv serviceInterfaces.IWalletSrv) *MemberService {
 	once.Do(func() {
 		memberSrv = &MemberService{
-			db: db,
+			db:        db,
+			walletSrv: walletSrv,
 		}
 	})
 	return memberSrv
@@ -34,7 +36,8 @@ func GetService() *MemberService {
 }
 
 type MemberService struct {
-	db *dbTypes.DBService
+	db        *dbTypes.DBService
+	walletSrv serviceInterfaces.IWalletSrv
 }
 
 func (s *MemberService) Auth(param *param.MemberAuthParam) error {
@@ -42,7 +45,9 @@ func (s *MemberService) Auth(param *param.MemberAuthParam) error {
 
 	// check step
 	if err := param.Check(); err != nil {
-		return tool.PrefixError(errPreFix, err)
+		err = tool.PrefixError(errPreFix, err)
+		logger.SERVER.Debug(err.Error())
+		return err
 	}
 
 	model := model.Member{
@@ -50,12 +55,14 @@ func (s *MemberService) Auth(param *param.MemberAuthParam) error {
 	}
 	matchMember, err := s.queryMemberByModel(model, true)
 	if err != nil {
-		return tool.PrefixError(errPreFix, err)
+		err = tool.PrefixError(errPreFix, err)
+		logger.SERVER.Debug(err.Error())
+		return err
 	}
 	if !tool.CheckPassword(param.Password, matchMember.Password) {
 		return tool.PrefixError(errPreFix, errors.New("password is incorrect"))
 	}
-	fmt.Printf("member %s auth successfully!\n", param.Account)
+	logger.SERVER.Info("member %s auth successfully!\n", param.Account)
 	return nil
 }
 
@@ -77,7 +84,7 @@ func (s *MemberService) AuthAndMember(param *param.MemberAuthParam) (*types.Memb
 	if !tool.CheckPassword(param.Password, matchMember.Password) {
 		return nil, tool.PrefixError(errPreFix, errors.New("password is incorrect"))
 	}
-	fmt.Printf("member %s auth successfully!\n", param.Account)
+	logger.SERVER.Info("member %s auth successfully!\n", param.Account)
 	return matchMember, nil
 }
 
@@ -86,7 +93,9 @@ func (s *MemberService) Create(param param.MemberCreateParam) error {
 
 	// check step
 	if err := param.Check(); err != nil {
-		return tool.PrefixError(errPreFix, err)
+		err = tool.PrefixError(errPreFix, err)
+		logger.SERVER.Debug(err.Error())
+		return err
 	}
 
 	// check user is existed
@@ -100,23 +109,26 @@ func (s *MemberService) Create(param param.MemberCreateParam) error {
 	// prepare member info for create
 	pwd, err := tool.HashPassword(param.Password)
 	if err != nil {
-		return tool.PrefixError(errPreFix, err)
+		err = tool.PrefixError(errPreFix, err)
+		logger.SERVER.Debug(err.Error())
+		return err
 	}
 
 	createModel := &model.Member{
 		Account:  param.Account,
-		Username: param.Username,
+		Name:     param.Name,
 		Password: pwd,
 		Email:    param.Email,
 		Phone:    param.Phone,
-		Address:  param.Address,
 	}
 
 	// create member
 	if err = s.db.Create(createModel).Error; err != nil {
-		return tool.PrefixError(errPreFix, err)
+		err = tool.PrefixError(errPreFix, err)
+		logger.SERVER.Debug(err.Error())
+		return err
 	}
-	fmt.Printf("member %s create successfully!\n", param.Account)
+	logger.SERVER.Info("member %s create successfully!\n", param.Account)
 	return nil
 }
 
@@ -125,7 +137,9 @@ func (s *MemberService) Edit(param param.MemberEditParam) error {
 
 	// check step
 	if err := param.Check(); err != nil {
-		return tool.PrefixError(errPreFix, err)
+		err = tool.PrefixError(errPreFix, err)
+		logger.SERVER.Debug(err.Error())
+		return err
 	}
 
 	// update member
@@ -134,7 +148,9 @@ func (s *MemberService) Edit(param param.MemberEditParam) error {
 	}
 	matchMember, err := s.queryMemberByModel(findModel, false)
 	if err != nil {
-		return tool.PrefixError(errPreFix, err)
+		err = tool.PrefixError(errPreFix, err)
+		logger.SERVER.Debug(err.Error())
+		return err
 	}
 
 	queryModel := model.Member{
@@ -143,16 +159,17 @@ func (s *MemberService) Edit(param param.MemberEditParam) error {
 		},
 	}
 	editModel := types.Member{
-		Account:  param.Account,
-		Username: param.Username,
-		Email:    param.Email,
-		Phone:    param.Phone,
-		Address:  param.Address,
+		Account: param.Account,
+		Name:    param.Name,
+		Email:   param.Email,
+		Phone:   param.Phone,
 	}
 	if err := s.db.Where(queryModel).Take(&queryModel).Updates(&editModel).Error; err != nil {
-		return tool.PrefixError(errPreFix, err)
+		err = tool.PrefixError(errPreFix, err)
+		logger.SERVER.Debug(err.Error())
+		return err
 	}
-	fmt.Printf("member %s edit successfully!\n", param.Account)
+	logger.SERVER.Info("member %s edit successfully!\n", param.Account)
 	return nil
 }
 
@@ -161,7 +178,9 @@ func (s *MemberService) Delete(param param.MemberDeleteParam) error {
 
 	// check step
 	if err := param.Check(); err != nil {
-		return tool.PrefixError(errPreFix, err)
+		err = tool.PrefixError(errPreFix, err)
+		logger.SERVER.Debug(err.Error())
+		return err
 	}
 
 	// delete member
@@ -170,15 +189,19 @@ func (s *MemberService) Delete(param param.MemberDeleteParam) error {
 		Account: account,
 	}
 	if err := s.db.Where(deleteMember).Take(&deleteMember).Delete(&deleteMember).Error; err != nil {
-		return tool.PrefixError(errPreFix, err)
+		err = tool.PrefixError(errPreFix, err)
+		logger.SERVER.Debug(err.Error())
+		return err
 	}
 	deleteUnscopedMember := types.Member{
 		Account: account,
 	}
 	if err := s.db.Unscoped().Where(deleteUnscopedMember).Take(&deleteUnscopedMember).Delete(&deleteUnscopedMember).Error; err != nil {
-		return tool.PrefixError(errPreFix, err)
+		err = tool.PrefixError(errPreFix, err)
+		logger.SERVER.Debug(err.Error())
+		return err
 	}
-	fmt.Printf("member %s delete successfully!\n", param.Account)
+	logger.SERVER.Info("member %s delete successfully!\n", param.Account)
 	return nil
 }
 
@@ -233,12 +256,11 @@ func (s *MemberService) queryMemberByModel(findModel model.Member, includePasswo
 
 func ModelToMember(m model.Member, includePassword bool) *types.Member {
 	member := &types.Member{
-		ID:       m.ID,
-		Account:  m.Account,
-		Username: m.Username,
-		Email:    m.Email,
-		Phone:    m.Phone,
-		Address:  m.Address,
+		ID:      m.ID,
+		Account: m.Account,
+		Name:    m.Name,
+		Email:   m.Email,
+		Phone:   m.Phone,
 	}
 	if includePassword {
 		member.Password = m.Password

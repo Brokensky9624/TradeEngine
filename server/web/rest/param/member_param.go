@@ -14,11 +14,10 @@ func (param MemberAuthParam) Check() error {
 
 type MemberCreateParam struct {
 	Account  string `json:"account" required:"true"`
-	Username string `json:"username" required:"true"`
+	Name     string `json:"name" required:"true"`
 	Password string `json:"password" required:"true"`
 	Email    string `json:"email" required:"true"`
 	Phone    string `json:"phone"`
-	Address  string `json:"address"`
 }
 
 func (param MemberCreateParam) Check() error {
@@ -26,11 +25,10 @@ func (param MemberCreateParam) Check() error {
 }
 
 type MemberEditParam struct {
-	Account  string `json:"account" required:"true"`
-	Username string `json:"username" required:"true"`
-	Email    string `json:"email" required:"true"`
-	Phone    string `json:"phone" required:"true"`
-	Address  string `json:"address" required:"true"`
+	Account string `json:"account" required:"true"`
+	Name    string `json:"name" required:"true"`
+	Email   string `json:"email" required:"true"`
+	Phone   string `json:"phone" required:"true"`
 }
 
 func (param MemberEditParam) Check() error {

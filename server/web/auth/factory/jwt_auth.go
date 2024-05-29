@@ -17,7 +17,7 @@ import (
 
 const (
 	identityKey      = "id"                               // indetiyKey for JWT claim
-	identityUsername = "username"                         // identityUsername for JWT claim
+	identityUsername = "name"                             // identityUsername for JWT claim
 	secretKey        = "5BYrir4vrBMB2oFJVywHFSrvlim6kCRn" // secret key for JWT encrypt
 	realm            = "realm"
 	sigAlgo          = "HS256"
@@ -59,7 +59,7 @@ func (a *AppleBoyJWTAuth) GetMiddleWare() (*jwt.GinJWTMiddleware, error) {
 			if v, ok := data.(*memberTypes.Member); ok {
 				return jwt.MapClaims{
 					identityKey:      v.ID,
-					identityUsername: v.Username,
+					identityUsername: v.Name,
 				}
 			}
 			return jwt.MapClaims{}
@@ -69,8 +69,8 @@ func (a *AppleBoyJWTAuth) GetMiddleWare() (*jwt.GinJWTMiddleware, error) {
 			id, _ := claims[identityKey].(float64)
 			username := claims[identityUsername].(string)
 			return &memberTypes.Member{
-				ID:       uint(id),
-				Username: username,
+				ID:   uint(id),
+				Name: username,
 			}
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) { // this function used to authenticate login user

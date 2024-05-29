@@ -12,6 +12,7 @@ import (
 	authInterfaces "tradeengine/server/web/auth/interfaces"
 	"tradeengine/server/web/rest/member"
 	"tradeengine/server/web/rest/order"
+	"tradeengine/server/web/rest/stockinfo"
 	"tradeengine/service/interfaces"
 	"tradeengine/utils/logger"
 	"tradeengine/utils/panichandle"
@@ -88,6 +89,7 @@ func (w *WebServer) loadMiddleWare() {
 func (w *WebServer) registerRoute() {
 	member.NewREST(w.mainGroup, w.srvMngr).RegisterRoute()
 	order.NewREST(w.mainGroup, w.srvMngr).RegisterRoute()
+	stockinfo.NewREST(w.mainGroup, w.srvMngr).RegisterRoute()
 }
 
 // support auto restart version

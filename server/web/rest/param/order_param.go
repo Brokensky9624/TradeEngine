@@ -5,12 +5,11 @@ import (
 )
 
 type OrderCreateParam struct {
-	OrderType uint `json:"orderType" required:"true"`
-	Price     uint `json:"price" required:"true"`
-	OwnerID   uint `json:"ownerID" required:"true"`
-	StockID   uint `json:"stockID" required:"true"`
-	Quantity  uint `json:"quantity" required:"true"`
-	Status    uint `json:"status"`
+	OrderType   uint    `json:"orderType" required:"true"`
+	Price       float64 `json:"price" required:"true"`
+	OwnerID     uint    `json:"ownerID" required:"true"`
+	StockInfoID uint    `json:"StockInfoID" required:"true"`
+	Quantity    uint    `json:"quantity" required:"true"`
 }
 
 func (param OrderCreateParam) Check() error {
@@ -18,12 +17,11 @@ func (param OrderCreateParam) Check() error {
 }
 
 type OrderEditParam struct {
-	ID        uint `json:"orderID" required:"true"`
-	OrderType uint `json:"orderType" required:"true"`
-	Price     uint `json:"price"`
-	OwnerID   uint `json:"ownerID"`
-	Quantity  uint `json:"quantity"`
-	Status    uint `json:"status"`
+	ID        uint    `json:"orderID" required:"true"`
+	OrderType uint    `json:"orderType" required:"true"`
+	Price     float64 `json:"price"`
+	OwnerID   uint    `json:"ownerID"`
+	Quantity  uint    `json:"quantity"`
 }
 
 func (param OrderEditParam) Check() error {

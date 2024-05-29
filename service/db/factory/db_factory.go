@@ -4,7 +4,6 @@ import (
 	"time"
 	"tradeengine/service/db/internal"
 	"tradeengine/service/db/model"
-	orderModel "tradeengine/service/db/model/order"
 	"tradeengine/service/db/types"
 	"tradeengine/utils/logger"
 	"tradeengine/utils/panichandle"
@@ -70,8 +69,11 @@ func (f *DefaulDBFactory) loadRequiredDBServiceMap() {
 	builder := internal.NewMySQLDBBuilder(connConfig)
 	modelList := []interface{}{
 		model.Member{},
-		orderModel.OrderBuy{},
-		orderModel.OrderSell{},
+		model.Wallet{},
+		model.StockInfo{},
+		model.Stock{},
+		model.BuyOrder{},
+		model.SellOrder{},
 	}
 	dbServ := types.NewDBService(builder, modelList)
 	dbServ.SetMaxIdleConns(20)
