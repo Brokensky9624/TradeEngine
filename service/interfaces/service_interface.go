@@ -19,7 +19,7 @@ type IServiceManager interface {
 type IMemberSrv interface {
 	Auth(param *param.MemberAuthParam) error
 	AuthAndMember(param *param.MemberAuthParam) (*memberTypes.Member, error)
-	Create(param param.MemberCreateParam) error
+	Create(param param.MemberCreateParam) (*memberTypes.Member, error)
 	Edit(param param.MemberEditParam) error
 	Delete(param param.MemberDeleteParam) error
 	Member(param param.MemberInfoParam) (*memberTypes.Member, error)

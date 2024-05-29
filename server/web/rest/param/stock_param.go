@@ -6,7 +6,7 @@ type OneStockCreateParam struct {
 	OwnerID           uint `json:"ownerID" required:"true"`
 	StockInfoID       uint `json:"stockInfoID" required:"true"`
 	AvailableQuantity uint `json:"availableQuantity" required:"true"`
-	PendingQuantity   uint `json:"pendingQuantity" required:"true"`
+	PendingQuantity   uint `json:"pendingQuantity"`
 }
 
 func (param OneStockCreateParam) Check() error {
@@ -34,11 +34,8 @@ func (param OneStockDeleteParam) Check() error {
 }
 
 type OneStockInfoParam struct {
-	ID                uint `json:"walletID" required:"true"`
-	OwnerID           uint `json:"ownerID" required:"true"`
-	StockInfoID       uint `json:"stockInfoID"`
-	AvailableQuantity uint `json:"availableQuantity"`
-	PendingQuantity   uint `json:"pendingQuantity"`
+	ID      uint `json:"walletID" required:"true"`
+	OwnerID uint `json:"ownerID" required:"true"`
 }
 
 func (param OneStockInfoParam) Check() error {

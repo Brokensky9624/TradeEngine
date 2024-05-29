@@ -74,7 +74,7 @@ func TestMemberService_Create(t *testing.T) {
 			for i, p := range tt.args.param {
 				p.Account = fmt.Sprintf("%s%d", tt.args.username, (i + 1))
 				p.Name = p.Account
-				if err := tt.s.Create(p); (err != nil) != tt.wantErr {
+				if _, err := tt.s.Create(p); (err != nil) != tt.wantErr {
 					t.Errorf("MemberService.Create() error = %v, wantErr %v", err, tt.wantErr)
 				}
 			}
@@ -136,11 +136,12 @@ func TestMemberService_Create_With1000G_50StockID1(t *testing.T) {
 			for i, p := range tt.args.param {
 				p.Account = fmt.Sprintf("%s%d", tt.args.username, (i + 1))
 				p.Name = p.Account
-				if err := tt.memberSrv.Create(p); (err != nil) != tt.wantErr {
+				oneMember, err := tt.memberSrv.Create(p)
+				if (err != nil) != tt.wantErr {
 					// t.Errorf("MemberService.Create() error = %v, wantErr %v", err, tt.wantErr)
 				}
 				walletParam := param.WalletCreateParam{
-					OwnerID:        uint(i + 1),
+					OwnerID:        oneMember.ID,
 					AvailableMoney: 1000,
 					PendingMoney:   0,
 				}
@@ -148,10 +149,10 @@ func TestMemberService_Create_With1000G_50StockID1(t *testing.T) {
 					// t.Errorf("WalletService.Create() error = %v, wantErr %v", err, tt.wantErr)
 				}
 				stockParam := param.OneStockCreateParam{
-					OwnerID:           uint(i + 1),
+					OwnerID:           oneMember.ID,
 					StockInfoID:       1,
-					AvailableQuantity: 1,
-					PendingQuantity:   1,
+					AvailableQuantity: 50,
+					PendingQuantity:   0,
 				}
 				if err := tt.stockSrv.Create(stockParam); (err != nil) != tt.wantErr {
 					// t.Errorf("StockService.Create() error = %v, wantErr %v", err, tt.wantErr)

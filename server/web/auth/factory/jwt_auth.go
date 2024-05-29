@@ -109,12 +109,13 @@ func (a *AppleBoyJWTAuth) GetRegisterHandler() gin.HandlerFunc {
 			return
 		}
 		// register member
-		if err := a.srvMngr.MemberService().Create(user); err != nil {
+		retMember, err := a.srvMngr.MemberService().Create(user)
+		if err != nil {
 			logger.REST.Debug("failed to login, err: %s", err)
 			c.JSON(http.StatusOK, resp.FailRespObj(err))
 			return
 		}
-		message := fmt.Sprintf("register member %s successful !", user.Account)
+		message := fmt.Sprintf("register member %s successful !", retMember.Account)
 		logger.REST.Info(message)
 		c.JSON(http.StatusOK, resp.SuccessRespObj(message, nil))
 	}

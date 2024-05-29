@@ -85,14 +85,14 @@ func (s *MemberService) AuthAndMember(param *param.MemberAuthParam) (*types.Memb
 	return matchMember, nil
 }
 
-func (s *MemberService) Create(param param.MemberCreateParam) error {
+func (s *MemberService) Create(param param.MemberCreateParam) (*types.Member, error) {
 	var errPreFix string = "failed to create member"
 
 	// check step
 	if err := param.Check(); err != nil {
 		err = tool.PrefixError(errPreFix, err)
 		logger.SERVER.Debug(err.Error())
-		return err
+		return nil, err
 	}
 
 	// check user is existed
@@ -100,7 +100,7 @@ func (s *MemberService) Create(param param.MemberCreateParam) error {
 		Account: param.Account,
 	}
 	if _, err := s.queryMemberByModel(findModel, false); err == nil {
-		return tool.PrefixError(errPreFix, errors.New("user is existed"))
+		return nil, tool.PrefixError(errPreFix, errors.New("user is existed"))
 	}
 
 	// prepare member info for create
@@ -108,7 +108,7 @@ func (s *MemberService) Create(param param.MemberCreateParam) error {
 	if err != nil {
 		err = tool.PrefixError(errPreFix, err)
 		logger.SERVER.Debug(err.Error())
-		return err
+		return nil, err
 	}
 
 	createModel := &model.Member{
@@ -123,10 +123,10 @@ func (s *MemberService) Create(param param.MemberCreateParam) error {
 	if err = s.db.Create(createModel).Error; err != nil {
 		err = tool.PrefixError(errPreFix, err)
 		logger.SERVER.Debug(err.Error())
-		return err
+		return nil, err
 	}
 	logger.SERVER.Info("member %s create successfully!\n", param.Account)
-	return nil
+	return ModelToMember(*createModel, false), nil
 }
 
 func (s *MemberService) Edit(param param.MemberEditParam) error {
