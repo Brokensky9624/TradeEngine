@@ -2,8 +2,9 @@
 
 ## Done
 
-- gin restful
+- gin restful and jwt
 - mysql implemnt
+- logger implemt
 - services handle table Member, Wallet, StockInfo, Stock, SellOrder, BuyOrder
 
 ## Todo
