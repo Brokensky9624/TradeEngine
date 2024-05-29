@@ -4,13 +4,13 @@
 
 - gin restful
 - mysql implemnt
-- table Member, Wallet, StockInfo, Stock, SellOrder, BuyOrder
+- services handle table Member, Wallet, StockInfo, Stock, SellOrder, BuyOrder
 
 ## Todo
 
-- sell order update
-- buy order update
-- order match
+- update flow after add/edit/delete sell order
+- update flow after add/edit/delete buy order
+- thread handle order match
 - socket.io or websocket
 - documant like swagger
 
