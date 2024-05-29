@@ -2,7 +2,8 @@
 
 ## Done
 
-- gin restful and jwt
+- gin restful
+- http/https with jwt
 - mysql implemnt
 - logger implemt
 - services handle table Member, Wallet, StockInfo, Stock, SellOrder, BuyOrder
