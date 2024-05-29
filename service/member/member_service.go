@@ -7,7 +7,6 @@ import (
 	"tradeengine/server/web/rest/param"
 	"tradeengine/service/db/model"
 	dbTypes "tradeengine/service/db/types"
-	serviceInterfaces "tradeengine/service/interfaces"
 	"tradeengine/service/member/types"
 
 	"gorm.io/gorm"
@@ -21,11 +20,10 @@ var (
 	once      sync.Once
 )
 
-func NewService(db *dbTypes.DBService, walletSrv serviceInterfaces.IWalletSrv) *MemberService {
+func NewService(db *dbTypes.DBService) *MemberService {
 	once.Do(func() {
 		memberSrv = &MemberService{
-			db:        db,
-			walletSrv: walletSrv,
+			db: db,
 		}
 	})
 	return memberSrv
@@ -36,8 +34,7 @@ func GetService() *MemberService {
 }
 
 type MemberService struct {
-	db        *dbTypes.DBService
-	walletSrv serviceInterfaces.IWalletSrv
+	db *dbTypes.DBService
 }
 
 func (s *MemberService) Auth(param *param.MemberAuthParam) error {
@@ -185,7 +182,7 @@ func (s *MemberService) Delete(param param.MemberDeleteParam) error {
 
 	// delete member
 	account := param.Account
-	deleteMember := types.Member{
+	deleteMember := model.Member{
 		Account: account,
 	}
 	if err := s.db.Where(deleteMember).Take(&deleteMember).Delete(&deleteMember).Error; err != nil {
@@ -193,7 +190,7 @@ func (s *MemberService) Delete(param param.MemberDeleteParam) error {
 		logger.SERVER.Debug(err.Error())
 		return err
 	}
-	deleteUnscopedMember := types.Member{
+	deleteUnscopedMember := model.Member{
 		Account: account,
 	}
 	if err := s.db.Unscoped().Where(deleteUnscopedMember).Take(&deleteUnscopedMember).Delete(&deleteUnscopedMember).Error; err != nil {

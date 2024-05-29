@@ -13,7 +13,7 @@ func (param WalletCreateParam) Check() error {
 }
 
 type WalletEditParam struct {
-	ID             uint
+	ID             uint    `json:"walletID" required:"true"`
 	OwnerID        uint    `json:"ownerID" required:"true"`
 	AvailableMoney float64 `json:"availableMoney"`
 	PendingMoney   float64 `json:"pendingMoney"`
@@ -24,7 +24,8 @@ func (param WalletEditParam) Check() error {
 }
 
 type WalletInfoParam struct {
-	ID uint `json:"walletID" required:"true"`
+	ID      uint `json:"walletID" required:"true"`
+	OwnerID uint `json:"ownerID" required:"true"`
 }
 
 func (param WalletInfoParam) Check() error {

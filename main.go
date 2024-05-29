@@ -11,6 +11,7 @@ import (
 	serviceManager "tradeengine/service/manager"
 	"tradeengine/service/member"
 	"tradeengine/service/order"
+	"tradeengine/service/stock"
 	"tradeengine/service/stockinfo"
 	"tradeengine/service/wallet"
 	"tradeengine/utils/logger"
@@ -33,12 +34,19 @@ func main() {
 
 	// init service
 	srvMngr := serviceManager.NewManager()
+
 	walletSrv := wallet.NewService(dbMngr.DefaultDBService())
 	srvMngr.SetWalletService(walletSrv)
-	memberSrv := member.NewService(dbMngr.DefaultDBService(), walletSrv)
+
+	stockSrv := stock.NewService(dbMngr.DefaultDBService())
+	srvMngr.SetStockService(stockSrv)
+
+	memberSrv := member.NewService(dbMngr.DefaultDBService())
 	srvMngr.SetMemberService(memberSrv)
+
 	orderSrv := order.NewService(dbMngr.DefaultDBService())
 	srvMngr.SetOrderService(orderSrv)
+
 	stockInfoSrv := stockinfo.NewService(dbMngr.DefaultDBService())
 	srvMngr.SetStockInfoService(stockInfoSrv)
 
