@@ -4,8 +4,8 @@ import "tradeengine/utils/tool"
 
 type WalletCreateParam struct {
 	OwnerID        uint    `json:"ownerID" required:"true"`
-	AvailableMoney float64 `json:"availableMoney" required:"true"`
-	PendingMoney   float64 `json:"pendingMoney" required:"true"`
+	AvailableMoney float64 `json:"availableMoney"`
+	PendingMoney   float64 `json:"pendingMoney"`
 }
 
 func (param WalletCreateParam) Check() error {

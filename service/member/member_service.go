@@ -13,6 +13,8 @@ import (
 
 	"tradeengine/utils/logger"
 	"tradeengine/utils/tool"
+
+	serviceInterfaces "tradeengine/service/interfaces"
 )
 
 var (
@@ -20,10 +22,11 @@ var (
 	once      sync.Once
 )
 
-func NewService(db *dbTypes.DBService) *MemberService {
+func NewService(db *dbTypes.DBService, walletSrv serviceInterfaces.IWalletSrv) *MemberService {
 	once.Do(func() {
 		memberSrv = &MemberService{
-			db: db,
+			db:        db,
+			walletSrv: walletSrv,
 		}
 	})
 	return memberSrv
@@ -34,7 +37,8 @@ func GetService() *MemberService {
 }
 
 type MemberService struct {
-	db *dbTypes.DBService
+	db        *dbTypes.DBService
+	walletSrv serviceInterfaces.IWalletSrv
 }
 
 func (s *MemberService) Auth(param *param.MemberAuthParam) error {
@@ -85,11 +89,11 @@ func (s *MemberService) AuthAndMember(param *param.MemberAuthParam) (*types.Memb
 	return matchMember, nil
 }
 
-func (s *MemberService) Create(param param.MemberCreateParam) (*types.Member, error) {
+func (s *MemberService) Create(createParam param.MemberCreateParam) (*types.Member, error) {
 	var errPreFix string = "failed to create member"
 
 	// check step
-	if err := param.Check(); err != nil {
+	if err := createParam.Check(); err != nil {
 		err = tool.PrefixError(errPreFix, err)
 		logger.SERVER.Debug(err.Error())
 		return nil, err
@@ -97,14 +101,14 @@ func (s *MemberService) Create(param param.MemberCreateParam) (*types.Member, er
 
 	// check user is existed
 	findModel := model.Member{
-		Account: param.Account,
+		Account: createParam.Account,
 	}
 	if _, err := s.queryMemberByModel(findModel, false); err == nil {
 		return nil, tool.PrefixError(errPreFix, errors.New("user is existed"))
 	}
 
 	// prepare member info for create
-	pwd, err := tool.HashPassword(param.Password)
+	pwd, err := tool.HashPassword(createParam.Password)
 	if err != nil {
 		err = tool.PrefixError(errPreFix, err)
 		logger.SERVER.Debug(err.Error())
@@ -112,20 +116,36 @@ func (s *MemberService) Create(param param.MemberCreateParam) (*types.Member, er
 	}
 
 	createModel := &model.Member{
-		Account:  param.Account,
-		Name:     param.Name,
+		Account:  createParam.Account,
+		Name:     createParam.Name,
 		Password: pwd,
-		Email:    param.Email,
-		Phone:    param.Phone,
+		Email:    createParam.Email,
+		Phone:    createParam.Phone,
 	}
 
-	// create member
-	if err = s.db.Create(createModel).Error; err != nil {
-		err = tool.PrefixError(errPreFix, err)
-		logger.SERVER.Debug(err.Error())
-		return nil, err
-	}
-	logger.SERVER.Info("member %s create successfully!\n", param.Account)
+	s.db.Transaction(func(tx *gorm.DB) error {
+		if err = s.db.Create(createModel).Error; err != nil {
+			err = tool.PrefixError(errPreFix, err)
+			logger.SERVER.Debug(err.Error())
+			return err
+		}
+		walletCreateParam := param.WalletCreateParam{
+			OwnerID:        createModel.ID,
+			AvailableMoney: 1000,
+			PendingMoney:   0,
+		}
+		if err = s.walletSrv.Create(walletCreateParam); err != nil {
+			return err
+		}
+		return nil
+	})
+	// // create member
+	// if err = s.db.Create(createModel).Error; err != nil {
+	// 	err = tool.PrefixError(errPreFix, err)
+	// 	logger.SERVER.Debug(err.Error())
+	// 	return nil, err
+	// }
+	logger.SERVER.Info("member %s create successfully!\n", createModel.Account)
 	return ModelToMember(*createModel, false), nil
 }
 

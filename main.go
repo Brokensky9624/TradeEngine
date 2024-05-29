@@ -41,7 +41,7 @@ func main() {
 	stockSrv := stock.NewService(dbMngr.DefaultDBService())
 	srvMngr.SetStockService(stockSrv)
 
-	memberSrv := member.NewService(dbMngr.DefaultDBService())
+	memberSrv := member.NewService(dbMngr.DefaultDBService(), walletSrv)
 	srvMngr.SetMemberService(memberSrv)
 
 	orderSrv := order.NewService(dbMngr.DefaultDBService())

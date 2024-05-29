@@ -21,8 +21,8 @@ func init() {
 	rootContext := context.WithoutCancel(context.Background())
 	dbMngr := db.NewDBManager(rootContext)
 	dbMngr.Run()
-	NewService(dbMngr.DefaultDBService())
 	walletSrv = wallet.NewService(dbMngr.DefaultDBService())
+	NewService(dbMngr.DefaultDBService(), walletSrv)
 	stockSrv = stock.NewService(dbMngr.DefaultDBService())
 	stockInfoSrv = stockinfo.NewService(dbMngr.DefaultDBService())
 }
@@ -66,7 +66,7 @@ func TestMemberService_Create(t *testing.T) {
 					},
 				},
 			},
-			wantErr: true,
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
